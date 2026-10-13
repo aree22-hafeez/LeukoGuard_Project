@@ -1,0 +1,6 @@
+feature,most similar raw feature,max |ρ|,R² raw scale (components),R² log1p (components),R² log1p (all 71 raw)
+NLR,LYMPH%,0.979,0.025,0.804,0.935
+PLR,NEUT%&,0.573,0.011,0.839,0.929
+MLR,LYMPH%&,0.676,0.068,0.645,0.8
+SII,NEUT%&,0.844,0.083,0.908,0.98
+dNLR,NEUT%,0.998,0.039,0.639,0.939

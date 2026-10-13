@@ -1,0 +1,48 @@
+rule,file,n_changed,detail
+R10,valid_site_D,9,"9 exact dups, 0 conflicting-label rows"
+R10,valid_site_G,13,"11 exact dups, 13 conflicting-label rows"
+R2,ALL,3,columns dropped
+R3,test_site_true_world,13623,cells set to NaN
+R3,train_site_A,7095,cells set to NaN
+R3,train_site_B,5244,cells set to NaN
+R4,train_site_B,4215,HCT x100 (fraction -> %)
+R3,train_site_C,6217,cells set to NaN
+R4,train_site_C,11691,HCT x100 (fraction -> %)
+R3,valid_site_A,13880,cells set to NaN
+R3,valid_site_B,19102,cells set to NaN
+R4,valid_site_B,51228,HCT x100 (fraction -> %)
+R3,valid_site_C,1151,cells set to NaN
+R4,valid_site_C,100398,HCT x100 (fraction -> %)
+R3,valid_site_D,11377,cells set to NaN
+R3,valid_site_E,22637,cells set to NaN
+R3,valid_site_F,3472,cells set to NaN
+R3,valid_site_G,1754,cells set to NaN
+R5,ALL,15,RBC
+R5,ALL,15,HGB
+R5,ALL,15,HCT
+R5,ALL,12,MCV
+R5,ALL,19,MCH
+R5,ALL,19,MCHC
+R5,ALL,229,RDW-SD
+R5,ALL,225,RDW-CV
+R6,ALL,5390,records
+R7,ALL,3856,records
+R8,ALL,103,NE-SSC
+R8,ALL,108,NE-SFL
+R8,ALL,104,NE-FSC
+R8,ALL,2166,LY-X
+R8,ALL,2166,LY-Y
+R8,ALL,2178,LY-Z
+R8,ALL,2758,MO-X
+R8,ALL,2768,MO-Y
+R8,ALL,2758,MO-Z
+R8,ALL,2288,NE-WX
+R8,ALL,2299,NE-WY
+R8,ALL,2290,NE-WZ
+R8,ALL,2178,LY-WX
+R8,ALL,2178,LY-WY
+R8,ALL,2178,LY-WZ
+R8,ALL,2758,MO-WX
+R8,ALL,2768,MO-WY
+R9,ALL,139,records
+R11,ALL,4,records removed

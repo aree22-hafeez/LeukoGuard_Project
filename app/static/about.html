@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeukoGuard | Model &amp; Evidence</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <nav class="topbar">
+        <a class="brand" href="/"><span class="logo">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC SCREENING SUPPORT</small></span></a>
+        <div class="nav"><a href="/">Screening tool</a><a class="active" href="about.html">Model &amp; evidence</a></div>
+      </nav>
+      <section class="hero">
+        <p class="eyebrow">TRANSPARENCY &amp; VALIDATION</p>
+        <h1>Model &amp; <span>evidence.</span></h1>
+        <p>Explore how the model works, review its evaluation metrics and understand the limitations of this student research prototype.</p>
+        <div class="chips"><span>✦ How it works</span><span>✦ Data &amp; validation</span><span>✦ Performance</span><span>✦ Limitations</span></div>
+      </section>
+    </div>
+  </header>
+  <main class="wrap about-main">
+    <div class="notice"><strong>Important:</strong> Performance on a dataset does not establish clinical validity. This model is for a course project and must not be used for patient-care decisions.</div>
+
+    <section class="about-section">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step"><b>01 · Input</b><p>Routine CBC values (WBC, differential, hemoglobin, platelets and more). Ratios such as NLR, PLR and MLR are calculated automatically.</p></div>
+        <div class="step"><b>02 · Model</b><p>A regularised Logistic Regression gives a screening score from 0 to 1. Blank values are treated as typical.</p></div>
+        <div class="step"><b>03 · Flag</b><p>The threshold was chosen so about 90% of leukemia cases in the development data are caught, because a missed case costs more than a false alarm.</p></div>
+        <div class="step"><b>04 · Explanation</b><p>Each value's contribution to the score is shown, so a flag is never a black box.</p></div>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <h2>Data: LeukoAlert routine CBC dataset</h2>
+      <p>11 files from 7 hospitals. Models are trained only on the development files; every other file is used only for testing. Counts are raw records before cleaning.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Files</th><th>Role</th><th>Records</th><th>Leukemia</th></tr></thead>
+        <tbody>
+          <tr><td>train_site_A / B / C</td><td>Development (training and 5-fold CV)</td><td>11,016 / 4,215 / 11,691</td><td>33.3%</td></tr>
+          <tr><td>valid_site_A / B / C</td><td>Internal validation (same hospitals)</td><td>59,986 / 51,228 / 100,398</td><td>4.5% / 1.8% / 4.1%</td></tr>
+          <tr><td>valid_site_D / E / F / G</td><td>Unseen hospitals (external test)</td><td>30,166 / 94,320 / 20,179 / 4,983</td><td>4.4% / 2.7% / 4.9% / 18.7%</td></tr>
+          <tr><td>test_site_true_world</td><td>Real-world test</td><td>58,481</td><td>3.9%</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Cleaning uses 12 fixed rules (disguised missing values, unit fixes, impossible values, duplicates). Imputation, scaling and class balancing are learned inside training folds only, so test data never influences the model.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Performance</h2>
+      <p>Results for this website's model at its fixed flag threshold. "external_validation" means hospitals never used for training. Loaded from <code>/api/model-info</code>.</p>
+      <div class="table-wrap"><table id="perf-table"><thead><tr><th>Cohort</th><th>Records</th><th>Prevalence</th><th>Recall</th><th>Precision</th><th>Specificity</th><th>ROC-AUC</th><th>PR-AUC</th></tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table></div>
+      <p id="perf-error" hidden class="muted">Could not load metrics. Check that the FastAPI server is running.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>What the model relies on most</h2>
+      <p>Weight per 1 SD of each value, loaded from <code>/api/global-effects</code>. Red pushes the score up, blue pushes it down. These describe the fitted model, not a cause of disease.</p>
+      <div id="effects"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section class="about-section">
+      <h2>Limitations</h2>
+      <ul class="limitations">
+        <li>This is a student research prototype, not a diagnostic tool.</li>
+        <li>The score is not a probability. Training data is 33% leukemia, while real-world prevalence is about 2–5%; at that rate roughly 1 in 3–4 flagged people have leukemia.</li>
+        <li>Recall on unseen hospitals was below the 90% target (about 87–88%), so some cases are missed. Cases with near-normal counts are the hardest.</li>
+        <li>The dataset has no patient identifiers, so repeat blood tests from one person may appear in both training and test data.</li>
+        <li>The training data may not represent Pakistani patients. Local validation would be needed before any real use.</li>
+        <li>Missing values, laboratory units and data quality affect results. Feature contributions explain the model, not medical causation.</li>
+      </ul>
+    </section>
+  </main>
+  <footer>LeukoGuard · Student course project · Research prototype</footer>
+  <script>
+    const fmt=(v,d=3)=>typeof v==="number"&&Number.isFinite(v)?v.toFixed(d):"—";
+    fetch("/api/model-info").then(r=>{if(!r.ok)throw new Error();return r.json()}).then(info=>{
+      const rows=Array.isArray(info.results)?info.results:[];
+      if(!rows.length)throw new Error();
+      const tb=document.querySelector("#perf-table tbody");tb.replaceChildren();
+      rows.forEach(row=>{const tr=document.createElement("tr");
+        ["cohort","n","prevalence_%","recall","precision","specificity","ROC_AUC","PR_AUC"].forEach(k=>{
+          const td=document.createElement("td"),v=row[k];
+          td.textContent=k==="n"?Number(v).toLocaleString():k==="prevalence_%"?fmt(v,2)+"%":typeof v==="number"?fmt(v):(v??"—");
+          tr.appendChild(td);});
+        tb.appendChild(tr);});
+    }).catch(()=>{document.querySelector("#perf-table tbody").innerHTML='<tr><td colspan="8">Metrics unavailable.</td></tr>';document.getElementById("perf-error").hidden=false;});
+    fetch("/api/global-effects").then(r=>{if(!r.ok)throw new Error();return r.json()}).then(rows=>{
+      if(!Array.isArray(rows)||!rows.length)throw new Error();
+      const box=document.getElementById("effects");box.replaceChildren();
+      const max=Math.max(...rows.map(r=>Math.abs(Number(r.weight)||0)),.001);
+      rows.forEach(row=>{const w=Number(row.weight)||0,line=document.createElement("div");
+        line.style.cssText="display:flex;align-items:center;gap:12px;margin:10px 0;font-size:.82rem;color:#59647a";
+        const name=document.createElement("span");name.style.cssText="width:230px;flex-shrink:0;overflow-wrap:anywhere";name.textContent=`${row.feature} (${w>0?"+":""}${w})`;
+        const track=document.createElement("div");track.style.cssText="flex:1;height:9px;background:#eef1f7;border-radius:6px;position:relative;overflow:hidden";
+        const fill=document.createElement("div");fill.style.cssText=`position:absolute;top:0;bottom:0;width:${50*Math.abs(w)/max}%;${w>=0?"left:50%;background:#c2185b":"right:50%;background:#1f6fb3"};border-radius:6px`;
+        track.appendChild(fill);line.append(name,track);box.appendChild(line);});
+    }).catch(()=>{document.getElementById("effects").textContent="Feature weights unavailable.";});
+  </script>
+</body>
+</html>

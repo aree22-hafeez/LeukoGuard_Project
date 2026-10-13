@@ -1,0 +1,21 @@
+group,role,feature,AUC (oriented),direction in leukemia,cliffs_delta
+NLR,DERIVED,NLR,0.67,lower,-0.34
+NLR,component,NEUT#,0.828,lower,-0.657
+NLR,component,LYMPH#,0.763,lower,-0.526
+NLR,component,NEUT%,0.709,lower,-0.418
+NLR,component,LYMPH%,0.633,higher,0.266
+PLR,DERIVED,PLR,0.625,lower,-0.25
+PLR,component,PLT,0.863,lower,-0.726
+PLR,component,LYMPH#,0.763,lower,-0.526
+MLR,DERIVED,MLR,0.566,lower,-0.131
+MLR,component,MONO#,0.687,lower,-0.375
+MLR,component,LYMPH#,0.763,lower,-0.526
+MLR,component,MONO%,0.543,higher,0.086
+SII,DERIVED,SII,0.805,lower,-0.61
+SII,component,PLT,0.863,lower,-0.726
+SII,component,NEUT#,0.828,lower,-0.657
+SII,component,LYMPH#,0.763,lower,-0.526
+dNLR,DERIVED,dNLR,0.714,lower,-0.429
+dNLR,component,NEUT#,0.828,lower,-0.657
+dNLR,component,WBC,0.823,lower,-0.646
+dNLR,component,NEUT%,0.709,lower,-0.418

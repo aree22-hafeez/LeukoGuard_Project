@@ -1,0 +1,13 @@
+id,rule,rationale
+R1,Rename columns,Raw headers -> short team names (e.g. 'WBC(10^9/L)' -> 'WBC'). Label 'leukemia'/'healthy' -> y = 1/0.
+R2,Drop blast-suspicion flags,"Q-Flag(Blasts/Abn Lympho?), Q-Flag(Blasts?), Q-Flag(Abn Lympho?) dropped: not in the paper's 72 features, 50-100% missing/constant at every site, and they are the analyser's own blast message (shortcut to the label)."
+R3,Disguised missing -> NaN,"In each file, each column contains exactly one value off the instrument's precision grid (e.g. 104.2533936651584). It is that file's column mean used as a fill-in. Every off-grid value is set back to NaN so imputation can be learned inside training folds."
+R4,HCT unit harmonisation,Files whose median HCT < 1 (sites B and C) store HCT as a fraction (L/L). Multiply by 100 so HCT is in % everywhere.
+R5,RBC panel zero -> NaN,"RBC, HGB, HCT, MCV, MCH, MCHC, RDW-SD, RDW-CV equal to 0 are impossible in a living patient (failed measurement) -> NaN."
+R6,Platelet indices not computed -> NaN,"When MPV = 0 the analyser did not compute the platelet-index block; PDW, MPV, P-LCR, PCT are set to NaN for that record."
+R7,Differential not performed -> NaN,When NEUT%+LYMPH%+MONO%+EO%+BASO% = 0 no differential was reported; the whole differential block (23 columns) is set to NaN. WBC is kept.
+R8,Cell-population zero -> NaN,NE-/LY-/MO- scattergram positions and widths equal to 0 are 'not measured' (a channel position cannot be 0) -> NaN.
+R9,Impossible MCHC,MCHC > 500 g/L is physically impossible (agglutination/optical artefact); MCHC and MCH (both derived from the corrupted RBC count) -> NaN.
+R10,Duplicates,Exact duplicate records (all features + label) within a file: keep the first. Identical features with conflicting labels: drop all copies.
+R11,No core CBC,"Records where WBC, HGB and PLT are all missing carry no screening information and are removed."
+R12,Data types,"All features float64 (NaN-capable), y int8, site/split/cohort categorical. No rows are removed for being extreme - extreme counts are the disease signal."

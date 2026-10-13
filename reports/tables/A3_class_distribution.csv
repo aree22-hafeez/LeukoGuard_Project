@@ -1,0 +1,12 @@
+cohort,source_file,n,leukemia,healthy,prevalence_pct,imbalance_ratio
+development,train_site_A,11016,3672,7344,33.33,2.0
+development,train_site_B,4215,1405,2810,33.33,2.0
+development,train_site_C,11691,3897,7794,33.33,2.0
+external_validation,valid_site_D,30166,1324,28842,4.39,21.8
+external_validation,valid_site_E,94320,2546,91774,2.7,36.0
+external_validation,valid_site_F,20179,989,19190,4.9,19.4
+external_validation,valid_site_G,4983,930,4053,18.66,4.4
+internal_validation,valid_site_A,59986,2732,57254,4.55,21.0
+internal_validation,valid_site_B,51228,933,50295,1.82,53.9
+internal_validation,valid_site_C,100398,4153,96245,4.14,23.2
+real_world_test,test_site_true_world,58481,2290,56191,3.92,24.5
