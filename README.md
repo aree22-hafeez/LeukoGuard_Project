@@ -1,50 +1,120 @@
-# LeukoGuard: Member 1 (Data Preparation + Logistic Regression + RQ3)
+# LeukoGuard: Explainable Leukemia Risk Prediction
 
-All five parts are complete. Open the notebooks **in order**; each one is saved with its outputs, so you can read them without running anything.
+LeukoGuard is a machine learning-based screening aid that uses Complete Blood Count (CBC) parameters to estimate leukemia risk. It uses Logistic Regression and explainable AI techniques to help users understand which blood parameters influence a model's prediction.
 
-| Part | Notebook | What it contains |
-|---|---|---|
-| A + B | `notebooks/01_EDA_and_Cleaning.ipynb` | EDA, data-quality problems found, 12 fixed cleaning rules, cleaned data |
-| C | `notebooks/02_Feature_Engineering.ipynb` | NLR, PLR, MLR, SII, dNLR + validity and usefulness checks |
-| D | `notebooks/03_Logistic_Regression.ipynb` | LR: 5-fold CV, tuning, imbalance comparison, 90%-recall threshold, unseen hospitals D–G |
-| E | `notebooks/04_RQ3_Derived_Features.ipynb` | RQ3 statistics, LR error analysis, coefficients and odds ratios |
+**Note:** LeukoGuard is an academic project and is not intended to diagnose leukemia or replace professional medical advice.
 
-**For the report:** `docs/member1_results_summary.md` (key numbers + answers) and `docs/cleaning_rules.md` (cleaning table). All figures are in `reports/figures/`, all tables in `reports/tables/`.
+## Features
 
-## Folder layout
+- CBC-based leukemia risk prediction
+- Machine learning using Logistic Regression
+- Explainable predictions to highlight influential blood parameters
+- Data cleaning and feature engineering
+- Model evaluation using multiple validation datasets
+- Web interface for entering CBC values and viewing predictions
+
+## Technologies Used
+
+- Python
+- Pandas and NumPy
+- Scikit-learn
+- SHAP / model explainability techniques
+- Flask or FastAPI (depending on the implementation in `app/main.py`)
+- HTML, CSS, and JavaScript
+- Jupyter Notebook
+
+## Project Structure
+
+```text
+LeukoGuard/
+├── app/
+│   ├── main.py
+│   └── static/
+│       ├── index.html
+│       ├── about.html
+│       ├── style.css
+│       └── script.js
+├── data/
+│   ├── cleaned/
+│   ├── features/
+│   └── raw/
+├── docs/
+├── models/
+├── notebooks/
+├── reports/
+├── src/
+├── tools/
+├── requirements.txt
+├── train_web_model.py
+└── README.md
 ```
-data/raw/                       11 original CSVs (put them here; not included in the zip)
-data/cleaned/                   created by notebook 01
-data/features/                  created by notebook 02
-data/cv_folds_development.csv   the shared 5 CV folds (sample_id -> fold) - give to Members 2 & 3
-src/leuko_common.py             feature lists, cleaning rules, derived features (imported by all notebooks)
-src/lr_pipeline.py              LR pipeline, SMOTE, metrics, threshold, DeLong / corrected t-test / bootstrap / McNemar
-models/lr_final.joblib          final LR model + its frozen threshold
-reports/predictions/            LR out-of-fold and validation predictions (for comparing with RF/XGBoost)
-reports/figures, reports/tables all outputs
-docs/                           cleaning rules + results summary
+
+## Installation and Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/aree22-hafeez/LeukoGuard_Project.git
+cd LeukoGuard_Project
 ```
 
-## Re-running (Google Colab)
-1. Upload the whole `LeukoGuard` folder to Google Drive (`MyDrive/LeukoGuard`) and put the 11 CSVs in `MyDrive/LeukoGuard/data/raw/`.
-2. Open a notebook in Colab and add this as the **first cell**:
-   ```python
-   from google.colab import drive
-   drive.mount("/content/drive")
-   import os
-   os.chdir("/content/drive/MyDrive/LeukoGuard")   # project root
-   ```
-3. Run notebooks 01 → 02 → 03 → 04 (about 3 + 2 + 5 + 9 minutes).
-Requirements: pandas, numpy, scipy, matplotlib, seaborn, scikit-learn, joblib (all preinstalled in Colab). No imbalanced-learn needed: SMOTE is implemented in `src/lr_pipeline.py`.
+### 2. Create and activate a virtual environment
 
-## For teammates (same data, same folds)
-```python
-import sys; sys.path.insert(0, "src")
-import pandas as pd
-from leuko_common import FEATURES, DERIVED, CORE_FEATURES
-fe    = pd.read_csv("data/features/leukoalert_features.csv.gz")   # cleaned + derived features, all cohorts
-dev   = fe[fe.cohort == "development"]                             # train A,B,C
-folds = pd.read_csv("data/cv_folds_development.csv")               # identical 5 folds for every model
-ext   = fe[fe.cohort == "external_validation"]                     # unseen hospitals D-G: never use for fitting
-# NaN are left in on purpose -> impute inside your pipeline (XGBoost handles NaN natively)
+**Windows:**
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run the application
+
+Check `app/main.py` for the application's entry point and run the command appropriate to its framework. For example, if it uses FastAPI:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Then open the local URL shown in the terminal.
+
+## Model and Data
+
+The project includes data preprocessing, feature engineering, model training, and evaluation notebooks. Trained model files are stored in `models/`, while analysis results and visualizations are available in `reports/`.
+
+Some large dataset files are intentionally excluded from the GitHub repository. They must be available locally if a particular notebook or workflow requires them.
+
+## Limitations
+
+- Predictions depend on the quality and representativeness of the training data.
+- Performance may vary across datasets and healthcare settings.
+- Model explanations describe factors influencing the model; they do not establish medical causation.
+- The system is intended for educational and research purposes, not clinical diagnosis.
+
+## Contributors
+
+- Areej Hafeez
+- Anum Aamir
+- Haadiyah Zafar
+
+## Dataset
+
+LeukoGuard uses the LeukoAlert dataset for CBC-based leukemia risk prediction research.
+1. LeukoAlert Dataset
+Dataset title: LeukoAlert-project: Transforming routine blood counts into a leukemia detection system with interpretable AI
+Author: Shilong Liu
+Source: Mendeley Data — LeukoAlert
+DOI: 10.17632/vc7kwnyppz.1
+Version: 1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+The dataset contains de-identified clinical records with Complete Blood Count (CBC) parameters. It is used for data cleaning, feature engineering, model training, and evaluation.
+
+## Disclaimer
+
+LeukoGuard is a student academic project. It is not a clinically validated diagnostic system. Any health concerns should be discussed with a qualified healthcare professional.
