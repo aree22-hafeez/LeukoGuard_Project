@@ -1,14 +1,18 @@
-const GROUPS = [
-  {title:"White blood cells",fields:[
+// Field keys and units must match the backend (app/main.py). Do not rename keys.
+const SECTIONS = [
+  {id:"required", title:"Required values", required:true, fields:[
     {key:"wbc",label:"WBC",unit:"×10⁹/L",req:true},
-    {key:"neut",label:"Neutrophils (abs.)",unit:"×10⁹/L"},
-    {key:"lymph",label:"Lymphocytes (abs.)",unit:"×10⁹/L"},
-    {key:"mono",label:"Monocytes (abs.)",unit:"×10⁹/L"},
-    {key:"eo",label:"Eosinophils (abs.)",unit:"×10⁹/L"},
-    {key:"baso",label:"Basophils (abs.)",unit:"×10⁹/L"}
-  ]},
-  {title:"Red blood cells",fields:[
     {key:"hgb",label:"Hemoglobin",unit:"g/dL",req:true},
+    {key:"plt",label:"Platelets",unit:"×10⁹/L",req:true}
+  ]},
+  {id:"diff", title:"White cell breakdown (optional)", fields:[
+    {key:"neut",label:"Neutrophils (absolute)",unit:"×10⁹/L"},
+    {key:"lymph",label:"Lymphocytes (absolute)",unit:"×10⁹/L"},
+    {key:"mono",label:"Monocytes (absolute)",unit:"×10⁹/L"},
+    {key:"eo",label:"Eosinophils (absolute)",unit:"×10⁹/L"},
+    {key:"baso",label:"Basophils (absolute)",unit:"×10⁹/L"}
+  ]},
+  {id:"red", title:"Red cell indices (optional)", fields:[
     {key:"rbc",label:"RBC",unit:"×10¹²/L"},
     {key:"hct",label:"Hematocrit",unit:"%"},
     {key:"mcv",label:"MCV",unit:"fL"},
@@ -17,14 +21,19 @@ const GROUPS = [
     {key:"rdw_cv",label:"RDW-CV",unit:"%"},
     {key:"rdw_sd",label:"RDW-SD",unit:"fL"}
   ]},
-  {title:"Platelets",fields:[
-    {key:"plt",label:"Platelets",unit:"×10⁹/L",req:true},
+  {id:"plt-ind", title:"Platelet indices (optional)", fields:[
     {key:"mpv",label:"MPV",unit:"fL"},
     {key:"pdw",label:"PDW",unit:"fL"},
     {key:"plcr",label:"P-LCR",unit:"%"},
     {key:"pct",label:"PCT",unit:"%"}
   ]}
 ];
+const ALL_FIELDS = SECTIONS.flatMap(section => section.fields);
+
+// Backend label kept as-is in the API; shown in plain language here.
+const FRIENDLY_NAMES = {
+  "Values left blank (assumed typical)": "Fields you left blank (counted as typical)"
+};
 
 const EXAMPLES={
   normal:{wbc:6.8,neut:4.1,lymph:1.9,mono:.5,eo:.2,baso:.05,rbc:4.8,hgb:14,hct:42,mcv:90,mch:29.5,mchc:33,rdw_cv:13,rdw_sd:42,plt:250,mpv:10,pdw:12,plcr:25,pct:.25},
@@ -33,127 +42,220 @@ const EXAMPLES={
 
 const form=document.getElementById("cbc-form");
 const errorEl=document.getElementById("error");
+const submitButton=document.getElementById("submit");
+const submitLabel=submitButton.querySelector(".btn-label");
 
-GROUPS.forEach(group=>{
-  const fieldset=document.createElement("fieldset");
-  const legend=document.createElement("legend");
-  legend.textContent=group.title;
-  fieldset.appendChild(legend);
+// ---- Build the form ----
+SECTIONS.forEach(section=>{
   const grid=document.createElement("div");
-  grid.className="grid";
-  group.fields.forEach(field=>{
+  grid.className="field-grid";
+  let container;
+  if(section.required){
+    container=document.createElement("div");
+    container.className="form-section";
+    const heading=document.createElement("h3");
+    heading.className="section-title";
+    heading.textContent=section.title;
+    container.append(heading,grid);
+  }else{
+    container=document.createElement("details");
+    container.className="group";
+    container.id=`group-${section.id}`;
+    const summary=document.createElement("summary");
+    const title=document.createElement("span");
+    title.className="group-title";
+    title.textContent=section.title;
+    const count=document.createElement("span");
+    count.className="group-count";
+    count.dataset.group=section.id;
+    summary.append(title,count);
+    container.append(summary,grid);
+  }
+  section.fields.forEach(field=>{
     const label=document.createElement("label");
     label.htmlFor=field.key;
-    label.append(document.createTextNode(field.label+(field.req?" *":"")));
-    const unit=document.createElement("small");
+    const name=document.createElement("span");
+    name.className="field-name";
+    name.textContent=field.label;
+    if(field.req){
+      const badge=document.createElement("span");
+      badge.className="badge-req";
+      badge.textContent="Required";
+      name.append(" ",badge);
+    }
+    const unit=document.createElement("span");
+    unit.className="unit";
+    unit.id=`${field.key}-unit`;
     unit.textContent=field.unit;
-    label.appendChild(unit);
     const input=document.createElement("input");
     input.type="number"; input.step="any"; input.min="0";
     input.id=field.key; input.name=field.key; input.inputMode="decimal";
     input.autocomplete="off";
-    label.appendChild(input); grid.appendChild(label);
+    input.setAttribute("aria-describedby",unit.id);
+    if(field.req){input.required=true;input.setAttribute("aria-required","true");}
+    label.append(name,unit,input);
+    grid.appendChild(label);
   });
-  fieldset.appendChild(grid); form.appendChild(fieldset);
+  form.appendChild(container);
 });
 
+// ---- Helpers ----
 function hideError(){errorEl.hidden=true}
+function showError(message){errorEl.textContent=message;errorEl.hidden=false}
+
+function updateCounts(){
+  SECTIONS.filter(section=>!section.required).forEach(section=>{
+    const filled=section.fields.filter(field=>document.getElementById(field.key).value.trim()!=="").length;
+    const count=form.querySelector(`[data-group="${section.id}"]`);
+    count.textContent=`${filled} of ${section.fields.length} entered`;
+  });
+}
+
 function fill(values){
-  GROUPS.forEach(group=>group.fields.forEach(field=>{
+  ALL_FIELDS.forEach(field=>{
     const input=document.getElementById(field.key);
     input.value=values&&values[field.key]!==undefined?values[field.key]:"";
     input.classList.remove("invalid"); input.removeAttribute("aria-invalid");
-  }));
+  });
+  // open any optional group that now holds a value, so it is visible
+  SECTIONS.filter(section=>!section.required).forEach(section=>{
+    const details=document.getElementById(`group-${section.id}`);
+    details.open=section.fields.some(field=>document.getElementById(field.key).value.trim()!=="");
+  });
+  updateCounts();
   hideError();
 }
-document.getElementById("ex-normal").addEventListener("click",()=>fill(EXAMPLES.normal));
-document.getElementById("ex-abn").addEventListener("click",()=>fill(EXAMPLES.abnormal));
-document.getElementById("clear").addEventListener("click",()=>{
-  fill(null); document.getElementById("result").hidden=true;
-  document.getElementById("placeholder").hidden=false;
-});
+
 function collect(){
   const body={};
-  GROUPS.forEach(group=>group.fields.forEach(field=>{
+  ALL_FIELDS.forEach(field=>{
     const raw=document.getElementById(field.key).value.trim();
     body[field.key]=raw===""?null:Number(raw);
-  }));
+  });
   return body;
 }
-function showError(message){errorEl.textContent=message;errorEl.hidden=false}
+
+function setBusy(busy){
+  submitButton.disabled=busy;
+  submitButton.setAttribute("aria-busy",String(busy));
+  submitLabel.textContent=busy?"Checking values…":"Check results";
+}
+
 function renderDrivers(list,items,type){
   list.replaceChildren();
   if(!Array.isArray(items)||items.length===0){
-    const li=document.createElement("li"); li.textContent="No notable contributions returned."; list.appendChild(li); return;
+    const li=document.createElement("li"); li.className="empty";
+    li.textContent="No notable contributions returned."; list.appendChild(li); return;
   }
   const max=Math.max(...items.map(item=>Math.abs(Number(item.effect)||0)),.001);
   items.forEach(item=>{
     const li=document.createElement("li"); li.className=type;
     const line=document.createElement("div"); line.className="driver-line";
-    const name=document.createElement("span"); name.className="driver-name"; name.textContent=item.feature??"Feature";
-    const value=document.createElement("span"); value.className="val";
-    const rawValue=item.value===null||item.value===undefined?"":` · ${item.value}`;
-    value.textContent=`${rawValue} (${Number(item.effect)>0?"+":""}${item.effect})`;
+    const name=document.createElement("span"); name.className="driver-name";
+    name.textContent=FRIENDLY_NAMES[item.feature]??item.feature??"Feature";
+    const value=document.createElement("span"); value.className="driver-value";
+    const shown=item.value===null||item.value===undefined?"":`${item.value} · `;
+    const effect=Number(item.effect);
+    value.textContent=`${shown}${effect>0?"+":""}${item.effect}`;
     line.append(name,value);
     const bar=document.createElement("div"); bar.className="bar";
     const fillBar=document.createElement("div"); fillBar.className="bar-fill";
-    fillBar.style.width=`${Math.max(5,100*Math.abs(Number(item.effect)||0)/max)}%`;
+    fillBar.style.width=`${Math.max(5,100*Math.abs(effect||0)/max)}%`;
     bar.appendChild(fillBar); li.append(line,bar); list.appendChild(li);
   });
 }
+
 function renderWarnings(warnings){
   const box=document.getElementById("warnings"); box.replaceChildren();
-  (Array.isArray(warnings)?warnings:[]).forEach(message=>{
-    const item=document.createElement("div"); item.className="warning";
+  const items=Array.isArray(warnings)?warnings:[];
+  if(items.length===0) return;
+  const title=document.createElement("h3"); title.className="warnings-title";
+  title.textContent="Warnings to review";
+  box.appendChild(title);
+  items.forEach(message=>{
+    const item=document.createElement("p"); item.className="warning";
     item.textContent=String(message); box.appendChild(item);
   });
 }
 
-document.getElementById("submit").addEventListener("click",async()=>{
-  const button=document.getElementById("submit"); hideError();
-  const body=collect(); let invalid=false;
-  GROUPS.forEach(group=>group.fields.forEach(field=>{
+function showResult(data){
+  const flagged=Boolean(data.flagged);
+  const verdict=document.getElementById("verdict");
+  verdict.className=`verdict ${flagged?"flag":"noflag"}`;
+  document.getElementById("verdict-title").textContent=flagged?"Flag raised":"No flag raised";
+  document.getElementById("verdict-sub").textContent=flagged
+    ? "The score is at or above the threshold. Further clinical assessment may be appropriate. This is not a diagnosis."
+    : "The score is below the threshold. This does not rule out leukemia or replace clinical assessment.";
+
+  const score=Math.min(1,Math.max(0,data.score));
+  const threshold=Math.min(1,Math.max(0,data.threshold));
+  document.getElementById("score-number").textContent=data.score.toFixed(3);
+  document.getElementById("threshold-copy").textContent=`Flag threshold ${data.threshold.toFixed(3)}`;
+  document.getElementById("tick").style.left=`${threshold*100}%`;
+  document.getElementById("pin").style.left=`${score*100}%`;
+  document.getElementById("meter").setAttribute("aria-label",
+    `Screening score ${data.score.toFixed(3)} on a scale from 0 to 1. Flag threshold ${data.threshold.toFixed(3)}. ${flagged?"Flag raised.":"No flag raised."}`);
+
+  renderWarnings(data.warnings);
+  renderDrivers(document.getElementById("up"),data.raises_score,"up");
+  renderDrivers(document.getElementById("down"),data.lowers_score,"down");
+
+  const coverage=document.getElementById("coverage");
+  coverage.textContent=typeof data.n_entered==="number"
+    ? `Based on ${data.n_entered} of 19 values entered.` : "";
+
+  document.getElementById("placeholder").hidden=true;
+  const result=document.getElementById("result");
+  result.hidden=false;
+  document.getElementById("result-title").focus();
+}
+
+// ---- Actions ----
+document.getElementById("ex-normal").addEventListener("click",()=>fill(EXAMPLES.normal));
+document.getElementById("ex-abn").addEventListener("click",()=>fill(EXAMPLES.abnormal));
+document.getElementById("clear").addEventListener("click",()=>{
+  fill(null);
+  form.querySelectorAll("details.group").forEach(details=>{details.open=false});
+  document.getElementById("result").hidden=true;
+  document.getElementById("placeholder").hidden=false;
+  document.getElementById("wbc").focus();
+});
+
+async function runPrediction(){
+  hideError();
+  const body=collect();
+  let invalid=null;
+  ALL_FIELDS.forEach(field=>{
     const input=document.getElementById(field.key),value=body[field.key];
     const bad=(field.req&&value===null)||(value!==null&&(!Number.isFinite(value)||value<0));
     input.classList.toggle("invalid",bad);
     if(bad)input.setAttribute("aria-invalid","true");else input.removeAttribute("aria-invalid");
-    if(bad)invalid=true;
-  }));
+    if(bad&&!invalid)invalid=input;
+  });
   if(invalid){
-    showError("Please complete the required fields (*) and enter valid non-negative numbers.");
-    document.querySelector("#cbc-form input.invalid")?.focus(); return;
+    showError("Please fill in the three required values (WBC, hemoglobin and platelets) and make sure every value is a non-negative number.");
+    const group=invalid.closest("details");
+    if(group)group.open=true;
+    invalid.focus(); return;
   }
-  button.disabled=true; button.innerHTML="Checking values…";
+  setBusy(true);
   try{
     const response=await fetch("/api/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     let data;
     try{data=await response.json()}catch{throw new Error("The server returned an unreadable response. Check that the FastAPI app is running.");}
     if(!response.ok)throw new Error(typeof data.detail==="string"?data.detail:"Prediction failed. Please check the values and try again.");
     if(typeof data.score!=="number"||typeof data.threshold!=="number")throw new Error("The prediction response is missing the score or threshold.");
-    const verdict=document.getElementById("verdict");
-    verdict.className=`verdict ${data.flagged?"flag":"noflag"}`; verdict.replaceChildren();
-    const title=document.createElement("span"); title.className="big";
-    title.textContent=data.flagged?"Flagged: elevated risk":"No Screening Flag Raised";
-    const sub=document.createElement("span"); sub.className="sub";
-    sub.textContent=data.flagged?"Further clinical evaluation may be appropriate; this is not a diagnosis.":"This result does not rule out leukemia or replace clinical assessment.";
-    verdict.append(title,sub);
-    document.getElementById("score-number").textContent=data.score.toFixed(3);
-    document.getElementById("threshold-copy").textContent=`Flag threshold ${data.threshold.toFixed(3)}`;
-    document.getElementById("pin").style.left=`${Math.min(100,Math.max(0,data.score*100))}%`;
-    document.getElementById("tick").style.left=`${Math.min(100,Math.max(0,data.threshold*100))}%`;
-    const badge=document.getElementById("result-badge");
-    badge.textContent=data.flagged?"FLAGGED":"NOT FLAGGED";
-    badge.style.color=data.flagged?"#9c1148":"#1f7a4d";
-    badge.style.background=data.flagged?"#fdeaf0":"#e8f6ee";
-    renderWarnings(data.warnings);
-    renderDrivers(document.getElementById("up"),data.raises_score,"up");
-    renderDrivers(document.getElementById("down"),data.lowers_score,"down");
-    document.getElementById("placeholder").hidden=true;
-    document.getElementById("result").hidden=false;
-    if(window.innerWidth<950)document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});
+    showResult(data);
   }catch(error){showError(error.message||"Something went wrong. Please try again.");}
-  finally{button.disabled=false;button.innerHTML='Check Results <span>→</span>';}
-});
+  finally{setBusy(false);}
+}
+
+form.addEventListener("submit",event=>{event.preventDefault(); runPrediction();});
 form.addEventListener("input",event=>{
-  if(event.target.matches("input")){event.target.classList.remove("invalid");event.target.removeAttribute("aria-invalid");hideError();}
+  if(event.target.matches("input")){
+    event.target.classList.remove("invalid");
+    event.target.removeAttribute("aria-invalid");
+    hideError(); updateCounts();
+  }
 });
+updateCounts();

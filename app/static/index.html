@@ -3,71 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LeukoGuard | CBC Screening</title>
+  <meta name="description" content="LeukoGuard: a research screening prototype that estimates a leukemia-risk score from routine blood count values. Not a diagnosis.">
+  <title>LeukoGuard | Blood count screening</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="site-header">
     <div class="wrap">
-      <nav class="topbar">
-        <a class="brand" href="/"><span class="logo">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC SCREENING SUPPORT</small></span></a>
-        <div class="nav"><a class="active" href="/">Screening tool</a><a href="about.html">Model &amp; evidence</a></div>
+      <nav class="topbar" aria-label="Main">
+        <a class="brand" href="/"><span class="logo" aria-hidden="true">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC screening prototype</small></span></a>
+        <div class="nav">
+          <a href="/" aria-current="page">Screening tool</a>
+          <a href="about.html">Model &amp; evidence</a>
+        </div>
       </nav>
-      <section class="hero">
-        <p class="eyebrow">A CLEARER LOOK AT ROUTINE BLOOD COUNTS</p>
-        <h1>Understand the signals.<br><span>Explore the score.</span></h1>
-        <p>Enter CBC values to view a research screening score and the features that influenced it.</p>
-        <div class="chips"><span>✦ Routine CBC values</span><span>✦ Explainable model output</span><span>✦ Simple, transparent results</span></div>
-      </section>
+      <div class="hero">
+        <h1>Blood count screening</h1>
+        <p>Estimate a research screening score from routine blood count values, and see which values moved it.</p>
+      </div>
     </div>
   </header>
 
-  <main class="wrap main">
-    <div class="notice"><strong>For research screening support only — not a diagnosis.</strong> A flag may suggest further clinical assessment. No flag does not rule out leukemia. Use illustrative or de-identified values only.</div>
+  <main id="main" class="wrap main">
+    <div class="notice" role="note">
+      <p><strong>Research screening only. This is not a diagnosis.</strong> A flag may suggest further clinical assessment. No flag does not rule out leukemia. Use illustrative or de-identified values only.</p>
+    </div>
+
     <div class="layout">
-      <section class="card input-card">
-        <div class="card-head">
-          <div><span class="section-no">01</span><h2>Enter CBC values</h2><p class="muted">Fill in the required fields and any other values available.</p></div>
+      <section class="card input-card" aria-labelledby="form-title">
+        <header class="card-head">
+          <span class="step-no" aria-hidden="true">1</span>
+          <div>
+            <h2 id="form-title">Enter blood count values</h2>
+            <p class="muted">Three values are required. The rest are optional and can be left blank.</p>
+          </div>
+        </header>
+
+        <div class="examples" role="group" aria-label="Example values">
+          <button type="button" class="btn-ghost" id="ex-normal">Load typical example</button>
+          <button type="button" class="btn-ghost" id="ex-abn">Load low-count example</button>
+          <button type="button" class="btn-ghost" id="clear">Clear all</button>
         </div>
-        <div class="examples">
-          <button type="button" class="ghost" id="ex-normal">Typical example</button>
-          <button type="button" class="ghost" id="ex-abn">Low-count example</button>
-          <button type="button" class="ghost" id="clear">Clear all</button>
-        </div>
-        <p class="small muted">Fields marked * are required. Leave unknown optional values blank; the backend handles missing values.</p>
+        <p class="hint">Each field shows its unit. The examples are illustrative values, not real patients.</p>
+
         <form id="cbc-form" novalidate></form>
-        <button id="submit" class="primary" type="button">Check Results <span>→</span></button>
-        <p id="error" class="error" hidden role="alert"></p>
+
+        <div class="form-actions">
+          <p id="error" class="error" hidden role="alert"></p>
+          <button id="submit" class="primary" type="submit" form="cbc-form">
+            <span class="btn-label">Check results</span> <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </section>
 
       <aside class="side">
-        <section id="placeholder" class="card placeholder">
-          <div class="placeholder-icon">✦</div>
-          <span class="section-no">02</span>
-          <h2>Your result will appear here</h2>
-          <p class="muted">After screening, you’ll see the score, threshold, warnings and feature contributions.</p>
-          <div class="preview-list"><p>✓ <span>Score and threshold comparison</span></p><p>✓ <span>Factors that raise or lower the score</span></p><p>✓ <span>Warnings to review</span></p></div>
+        <section id="placeholder" class="card explainer" aria-labelledby="how-title">
+          <span class="step-no" aria-hidden="true">2</span>
+          <h2 id="how-title">How to read your result</h2>
+          <ol class="explain-list">
+            <li><strong>Verdict.</strong> A flag means the score reached the flag threshold. No flag means it stayed below it.</li>
+            <li><strong>Score.</strong> Runs from 0 (lowest) to 1 (highest). A marker shows where the flag threshold sits on that scale. It is not the probability of having leukemia.</li>
+            <li><strong>Factors.</strong> Red bars raised the score and blue bars lowered it. A longer bar means a stronger effect.</li>
+            <li><strong>Warnings.</strong> These appear when values are missing or the result may be less reliable.</li>
+          </ol>
+          <p class="muted small">Your result will appear here after you check the values.</p>
         </section>
 
-        <section id="result" class="card result-card" hidden>
-          <div class="card-head result-heading"><div><span class="section-no">02</span><h2>Screening result</h2></div><span id="result-badge" class="pill">RESULT READY</span></div>
-          <div id="verdict" class="verdict"></div>
-          <div class="score-heading"><div><span class="label">SCREENING SCORE</span><strong id="score-number">—</strong></div><span id="threshold-copy" class="threshold-copy">Threshold —</span></div>
-          <div class="meter"><div class="tick" id="tick"><span>Threshold</span></div><div class="pin" id="pin"></div></div>
-          <div class="scale"><span>0 · Lower score</span><span>Higher score · 1</span></div>
-          <div id="warnings"></div>
-          <div class="drivers-block"><h3>What influenced the score?</h3><p class="muted small">Feature contributions returned by the model.</p>
-            <h4 class="up-title">↑ Pushes the score up</h4><ul id="up" class="drivers"></ul>
-            <h4 class="down-title">↓ Pushes the score down</h4><ul id="down" class="drivers"></ul>
+        <section id="result" class="card result-card" aria-labelledby="result-title" hidden>
+          <header class="card-head">
+            <span class="step-no" aria-hidden="true">2</span>
+            <h2 id="result-title" tabindex="-1">Screening result</h2>
+          </header>
+
+          <div id="verdict" class="verdict">
+            <span id="verdict-title" class="verdict-title"></span>
+            <span id="verdict-sub" class="verdict-sub"></span>
           </div>
-          <p class="disclaimer">This score is not a confirmed disease probability. It is a research output and must not replace qualified clinical assessment.</p>
-          <a class="text-link" href="about.html">Read about the model →</a>
+
+          <div class="score-block">
+            <div class="score-head">
+              <div>
+                <span class="label">Screening score (0 to 1)</span>
+                <strong id="score-number" class="score-number">—</strong>
+              </div>
+              <span id="threshold-copy" class="threshold-copy">Flag threshold —</span>
+            </div>
+            <div id="meter" class="meter" role="img" aria-label="Score not yet available">
+              <div class="meter-track" aria-hidden="true"></div>
+              <div id="tick" class="meter-threshold" aria-hidden="true"><span>Threshold</span></div>
+              <div id="pin" class="meter-pin" aria-hidden="true"></div>
+            </div>
+            <div class="meter-scale" aria-hidden="true"><span>0</span><span>0.5</span><span>1</span></div>
+          </div>
+
+          <div id="warnings" class="warnings"></div>
+
+          <div class="factors">
+            <h3>What influenced the score</h3>
+            <p class="legend-inline">
+              <span class="swatch up" aria-hidden="true"></span> Red: raised the score
+              <span class="swatch down" aria-hidden="true"></span> Blue: lowered the score
+            </p>
+            <h4 class="up-title">↑ Raised the score</h4>
+            <ul id="up" class="drivers"></ul>
+            <h4 class="down-title">↓ Lowered the score</h4>
+            <ul id="down" class="drivers"></ul>
+          </div>
+
+          <p id="coverage" class="muted small"></p>
+          <p class="disclaimer"><strong>Research only.</strong> This score is not a confirmed disease probability and must not replace qualified clinical assessment.</p>
+          <a class="text-link" href="about.html">Read about the model and its limits →</a>
         </section>
-        <section class="card about-card"><span class="about-icon">↗</span><div><h3>Want to know more?</h3><p class="muted small">Learn about the model, evaluation and limitations.</p><a class="text-link" href="about.html">Model &amp; evidence →</a></div></section>
+
+        <section class="card about-card">
+          <span class="about-icon" aria-hidden="true">↗</span>
+          <div>
+            <h3>Want to know more?</h3>
+            <p class="muted small">See how the model was built, how well it performed and where it falls short.</p>
+            <a class="text-link" href="about.html">Model &amp; evidence →</a>
+          </div>
+        </section>
       </aside>
     </div>
   </main>
-  <footer>LeukoGuard · Student course project · Research prototype</footer>
+
+  <footer class="site-footer">LeukoGuard · Student course project · Research prototype</footer>
   <script src="/script.js"></script>
 </body>
 </html>

@@ -3,101 +3,223 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How the LeukoGuard screening model was built, how it performed on held-out hospitals, and its limitations.">
   <title>LeukoGuard | Model &amp; Evidence</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="site-header">
     <div class="wrap">
-      <nav class="topbar">
-        <a class="brand" href="/"><span class="logo">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC SCREENING SUPPORT</small></span></a>
-        <div class="nav"><a href="/">Screening tool</a><a class="active" href="about.html">Model &amp; evidence</a></div>
+      <nav class="topbar" aria-label="Main">
+        <a class="brand" href="/"><span class="logo" aria-hidden="true">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC screening prototype</small></span></a>
+        <div class="nav">
+          <a href="/">Screening tool</a>
+          <a href="about.html" aria-current="page">Model &amp; evidence</a>
+        </div>
       </nav>
-      <section class="hero">
-        <p class="eyebrow">TRANSPARENCY &amp; VALIDATION</p>
-        <h1>Model &amp; <span>evidence.</span></h1>
-        <p>Explore how the model works, review its evaluation metrics and understand the limitations of this student research prototype.</p>
-        <div class="chips"><span>✦ How it works</span><span>✦ Data &amp; validation</span><span>✦ Performance</span><span>✦ Limitations</span></div>
-      </section>
+      <div class="hero">
+        <h1>Model &amp; evidence</h1>
+        <p>How the model works, how it performed, and where it falls short. A student research prototype.</p>
+      </div>
     </div>
   </header>
-  <main class="wrap about-main">
-    <div class="notice"><strong>Important:</strong> Performance on a dataset does not establish clinical validity. This model is for a course project and must not be used for patient-care decisions.</div>
 
-    <section class="about-section">
-      <h2>How it works</h2>
+  <main id="main" class="wrap about-main">
+    <div class="notice" role="note">
+      <p><strong>Important:</strong> Performance on a dataset does not establish clinical validity. This model is for a course project and must not be used for patient-care decisions.</p>
+    </div>
+
+    <section class="section" aria-labelledby="how-heading">
+      <h2 id="how-heading">How it works</h2>
       <div class="steps">
-        <div class="step"><b>01 · Input</b><p>Routine CBC values (WBC, differential, hemoglobin, platelets and more). Ratios such as NLR, PLR and MLR are calculated automatically.</p></div>
-        <div class="step"><b>02 · Model</b><p>A regularised Logistic Regression gives a screening score from 0 to 1. Blank values are treated as typical.</p></div>
-        <div class="step"><b>03 · Flag</b><p>The threshold was chosen so about 90% of leukemia cases in the development data are caught, because a missed case costs more than a false alarm.</p></div>
-        <div class="step"><b>04 · Explanation</b><p>Each value's contribution to the score is shown, so a flag is never a black box.</p></div>
+        <div class="step"><b>01 · Input</b><p>Routine blood count values (WBC, differential, hemoglobin, platelets and more). Ratios such as NLR, PLR and MLR are calculated automatically.</p></div>
+        <div class="step"><b>02 · Model</b><p>A regularised logistic regression gives a screening score from 0 to 1. Fields left blank are treated as typical values.</p></div>
+        <div class="step"><b>03 · Flag</b><p>A flag is raised when the score reaches the threshold. The threshold was set on development data to catch about 90% of leukemia cases.</p></div>
+        <div class="step"><b>04 · Explanation</b><p>Each value's push up or down on the score is shown, so a flag is never a black box.</p></div>
       </div>
     </section>
 
-    <section class="about-section">
-      <h2>Data: LeukoAlert routine CBC dataset</h2>
+    <section class="section" aria-labelledby="data-heading">
+      <h2 id="data-heading">Data: LeukoAlert routine CBC dataset</h2>
       <p>11 files from 7 hospitals. Models are trained only on the development files; every other file is used only for testing. Counts are raw records before cleaning.</p>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Files</th><th>Role</th><th>Records</th><th>Leukemia</th></tr></thead>
-        <tbody>
-          <tr><td>train_site_A / B / C</td><td>Development (training and 5-fold CV)</td><td>11,016 / 4,215 / 11,691</td><td>33.3%</td></tr>
-          <tr><td>valid_site_A / B / C</td><td>Internal validation (same hospitals)</td><td>59,986 / 51,228 / 100,398</td><td>4.5% / 1.8% / 4.1%</td></tr>
-          <tr><td>valid_site_D / E / F / G</td><td>Unseen hospitals (external test)</td><td>30,166 / 94,320 / 20,179 / 4,983</td><td>4.4% / 2.7% / 4.9% / 18.7%</td></tr>
-          <tr><td>test_site_true_world</td><td>Real-world test</td><td>58,481</td><td>3.9%</td></tr>
-        </tbody>
-      </table></div>
-      <p class="small muted">Cleaning uses 12 fixed rules (disguised missing values, unit fixes, impossible values, duplicates). Imputation, scaling and class balancing are learned inside training folds only, so test data never influences the model.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-labelledby="data-caption">
+        <table>
+          <caption id="data-caption">Dataset files, roles and leukemia rates</caption>
+          <thead><tr><th scope="col">Files</th><th scope="col">Role</th><th scope="col" class="num">Records</th><th scope="col" class="num">Leukemia</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">train_site_A / B / C</th><td>Development (training and 5-fold CV)</td><td class="num">11,016 / 4,215 / 11,691</td><td class="num">33.3%</td></tr>
+            <tr><th scope="row">valid_site_A / B / C</th><td>Internal validation (same hospitals)</td><td class="num">59,986 / 51,228 / 100,398</td><td class="num">4.5% / 1.8% / 4.1%</td></tr>
+            <tr><th scope="row">valid_site_D / E / F / G</th><td>Unseen hospitals (external test)</td><td class="num">30,166 / 94,320 / 20,179 / 4,983</td><td class="num">4.4% / 2.7% / 4.9% / 18.7%</td></tr>
+            <tr><th scope="row">test_site_true_world</th><td>Real-world test</td><td class="num">58,481</td><td class="num">3.9%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Cleaning uses 12 fixed rules (disguised missing values, unit fixes, impossible values, duplicates). Imputation, scaling and class balancing are learned inside training folds only, so test data never influences the model.</p>
     </section>
 
-    <section class="about-section">
-      <h2>Performance</h2>
-      <p>Results for this website's model at its fixed flag threshold. "external_validation" means hospitals never used for training. Loaded from <code>/api/model-info</code>.</p>
-      <div class="table-wrap"><table id="perf-table"><thead><tr><th>Cohort</th><th>Records</th><th>Prevalence</th><th>Recall</th><th>Precision</th><th>Specificity</th><th>ROC-AUC</th><th>PR-AUC</th></tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table></div>
-      <p id="perf-error" hidden class="muted">Could not load metrics. Check that the FastAPI server is running.</p>
+    <section class="section" aria-labelledby="perf-heading">
+      <h2 id="perf-heading">Performance of the web model</h2>
+      <div class="model-note">
+        <span aria-hidden="true">ⓘ</span>
+        <p><strong>These numbers are for the web model</strong>: the model behind the screening tool on this site, evaluated at its fixed flag threshold of <span id="threshold-value">—</span>.</p>
+      </div>
+      <p class="threshold-why"><strong>Why this threshold:</strong> it was set on development data so that about 90% of leukemia cases are caught, because a missed case is judged more costly than a false alarm.</p>
+
+      <div id="perf-status" class="muted small" hidden></div>
+
+      <h3 id="chart-heading">Recall by cohort</h3>
+      <p class="chart-key">
+        <span><span class="target-key" aria-hidden="true"></span><span id="target-label">Recall target</span></span>
+        <span>Recall is the share of true leukemia cases the model flags.</span>
+      </p>
+      <div id="recall-chart" class="chart" role="img" aria-label="Recall by cohort, loading">
+        <p class="muted small">Loading…</p>
+      </div>
+
+      <h3>Full results</h3>
+      <div class="table-wrap" tabindex="0" role="region" aria-labelledby="perf-caption">
+        <table id="perf-table">
+          <caption id="perf-caption">Web model results by cohort, at the fixed flag threshold</caption>
+          <thead>
+            <tr>
+              <th scope="col">Cohort</th>
+              <th scope="col" class="num">Records</th>
+              <th scope="col" class="num">Prevalence</th>
+              <th scope="col" class="num">Recall</th>
+              <th scope="col" class="num">Precision</th>
+              <th scope="col" class="num">Specificity</th>
+              <th scope="col" class="num">ROC-AUC</th>
+              <th scope="col" class="num">PR-AUC</th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="8">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="table-note">Precision depends on how common leukemia is in each cohort, so it is lower in the cohorts with fewer cases. Cohort names: <em>external_validation</em> means hospitals never used for training.</p>
     </section>
 
-    <section class="about-section">
-      <h2>What the model relies on most</h2>
-      <p>Weight per 1 SD of each value, loaded from <code>/api/global-effects</code>. Red pushes the score up, blue pushes it down. These describe the fitted model, not a cause of disease.</p>
+    <section class="section" aria-labelledby="weights-heading">
+      <h2 id="weights-heading">What the model relies on most</h2>
+      <p>Weight per 1 standard deviation of each value, loaded from the model. These describe the fitted model, not a cause of disease.</p>
+      <div class="legend" aria-label="Chart legend">
+        <span class="raise"><i aria-hidden="true"></i>Red: raises the score</span>
+        <span class="lower"><i aria-hidden="true"></i>Blue: lowers the score</span>
+        <span class="muted">Longer bar = stronger weight</span>
+      </div>
       <div id="effects"><p class="muted">Loading…</p></div>
     </section>
 
-    <section class="about-section">
-      <h2>Limitations</h2>
+    <section class="section" aria-labelledby="limits-heading">
+      <h2 id="limits-heading">Limitations</h2>
+      <div class="key-limit">
+        <h3>Key limitation: some cases are missed at unseen hospitals</h3>
+        <p>On hospitals the model never saw in training, recall was about 87%, below the 90% target. That means roughly 1 in 8 leukemia cases there was missed. Cases with near-normal counts are the hardest to catch.</p>
+      </div>
       <ul class="limitations">
         <li>This is a student research prototype, not a diagnostic tool.</li>
-        <li>The score is not a probability. Training data is 33% leukemia, while real-world prevalence is about 2–5%; at that rate roughly 1 in 3–4 flagged people have leukemia.</li>
-        <li>Recall on unseen hospitals was below the 90% target (about 87–88%), so some cases are missed. Cases with near-normal counts are the hardest.</li>
+        <li>The score is not a probability. Training data is 33% leukemia, while the real-world test set has about 4% leukemia. At that rate, about 1 in 4 flagged people had leukemia (precision 24%).</li>
         <li>The dataset has no patient identifiers, so repeat blood tests from one person may appear in both training and test data.</li>
         <li>The training data may not represent Pakistani patients. Local validation would be needed before any real use.</li>
         <li>Missing values, laboratory units and data quality affect results. Feature contributions explain the model, not medical causation.</li>
       </ul>
     </section>
   </main>
-  <footer>LeukoGuard · Student course project · Research prototype</footer>
+
+  <footer class="site-footer">LeukoGuard · Student course project · Research prototype</footer>
+
   <script>
     const fmt=(v,d=3)=>typeof v==="number"&&Number.isFinite(v)?v.toFixed(d):"—";
+    const pct=v=>typeof v==="number"&&Number.isFinite(v)?`${(v*100).toFixed(1)}%`:"—";
+    const COHORT_NAMES={
+      "development (CV, OOF)":"Development (cross-validation)",
+      "internal_validation":"Internal validation (same hospitals)",
+      "external_validation (hospitals D-G)":"Unseen hospitals (D–G)",
+      "real_world_test":"Real-world test"
+    };
+    const cohortName=c=>COHORT_NAMES[c]||c;
+
+    function renderChart(rows,target){
+      const box=document.getElementById("recall-chart");
+      box.replaceChildren();
+      const parts=[];
+      rows.forEach(row=>{
+        const recall=Number(row.recall);
+        const meets=Number.isFinite(recall)&&recall>=target;
+        const line=document.createElement("div"); line.className="chart-row"; line.setAttribute("aria-hidden","true");
+
+        const name=document.createElement("span"); name.className="chart-name";
+        name.textContent=cohortName(row.cohort);
+        if(!meets){
+          const tag=document.createElement("span"); tag.className="chart-tag";
+          tag.textContent="below target"; name.appendChild(tag);
+        }
+
+        const track=document.createElement("div"); track.className="chart-track";
+        const fill=document.createElement("div"); fill.className=meets?"chart-fill":"chart-fill low";
+        fill.style.width=`${Math.max(0,Math.min(100,recall*100))}%`;
+        const marker=document.createElement("div"); marker.className="chart-target";
+        marker.style.left=`${target*100}%`;
+        track.append(fill,marker);
+
+        const value=document.createElement("span"); value.className="chart-value";
+        value.textContent=pct(recall);
+
+        line.append(name,track,value);
+        box.appendChild(line);
+        parts.push(`${cohortName(row.cohort)} ${pct(recall)}${meets?"":" (below target)"}`);
+      });
+      box.setAttribute("aria-label",`Recall by cohort. ${parts.join("; ")}. Target ${pct(target)}.`);
+    }
+
     fetch("/api/model-info").then(r=>{if(!r.ok)throw new Error();return r.json()}).then(info=>{
       const rows=Array.isArray(info.results)?info.results:[];
       if(!rows.length)throw new Error();
-      const tb=document.querySelector("#perf-table tbody");tb.replaceChildren();
-      rows.forEach(row=>{const tr=document.createElement("tr");
-        ["cohort","n","prevalence_%","recall","precision","specificity","ROC_AUC","PR_AUC"].forEach(k=>{
-          const td=document.createElement("td"),v=row[k];
-          td.textContent=k==="n"?Number(v).toLocaleString():k==="prevalence_%"?fmt(v,2)+"%":typeof v==="number"?fmt(v):(v??"—");
-          tr.appendChild(td);});
-        tb.appendChild(tr);});
-    }).catch(()=>{document.querySelector("#perf-table tbody").innerHTML='<tr><td colspan="8">Metrics unavailable.</td></tr>';document.getElementById("perf-error").hidden=false;});
+      const target=typeof info.target_recall==="number"?info.target_recall:0.9;
+      document.getElementById("threshold-value").textContent=fmt(info.threshold);
+      document.getElementById("target-label").textContent=`${pct(target)} recall target`;
+      renderChart(rows,target);
+
+      const tb=document.querySelector("#perf-table tbody"); tb.replaceChildren();
+      rows.forEach(row=>{
+        const tr=document.createElement("tr");
+        ["cohort","n","prevalence_%","recall","precision","specificity","ROC_AUC","PR_AUC"].forEach((k,i)=>{
+          const td=document.createElement(i===0?"th":"td"), v=row[k];
+          if(i===0)td.scope="row";
+          else td.className="num";
+          td.textContent=k==="cohort"?cohortName(v)
+            :k==="n"?Number(v).toLocaleString()
+            :k==="prevalence_%"?fmt(v,2)+"%"
+            :typeof v==="number"?fmt(v):(v??"—");
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+    }).catch(()=>{
+      document.querySelector("#perf-table tbody").innerHTML='<tr><td colspan="8">Metrics unavailable.</td></tr>';
+      document.getElementById("recall-chart").replaceChildren(Object.assign(document.createElement("p"),{className:"muted small",textContent:"Chart unavailable."}));
+      const status=document.getElementById("perf-status");
+      status.textContent="Could not load metrics. Check that the FastAPI server is running.";
+      status.hidden=false;
+    });
+
     fetch("/api/global-effects").then(r=>{if(!r.ok)throw new Error();return r.json()}).then(rows=>{
       if(!Array.isArray(rows)||!rows.length)throw new Error();
-      const box=document.getElementById("effects");box.replaceChildren();
+      const box=document.getElementById("effects"); box.replaceChildren();
       const max=Math.max(...rows.map(r=>Math.abs(Number(r.weight)||0)),.001);
-      rows.forEach(row=>{const w=Number(row.weight)||0,line=document.createElement("div");
-        line.style.cssText="display:flex;align-items:center;gap:12px;margin:10px 0;font-size:.82rem;color:#59647a";
-        const name=document.createElement("span");name.style.cssText="width:230px;flex-shrink:0;overflow-wrap:anywhere";name.textContent=`${row.feature} (${w>0?"+":""}${w})`;
-        const track=document.createElement("div");track.style.cssText="flex:1;height:9px;background:#eef1f7;border-radius:6px;position:relative;overflow:hidden";
-        const fill=document.createElement("div");fill.style.cssText=`position:absolute;top:0;bottom:0;width:${50*Math.abs(w)/max}%;${w>=0?"left:50%;background:#c2185b":"right:50%;background:#1f6fb3"};border-radius:6px`;
-        track.appendChild(fill);line.append(name,track);box.appendChild(line);});
+      rows.forEach(row=>{
+        const w=Number(row.weight)||0;
+        const line=document.createElement("div"); line.className="eff-row";
+        const name=document.createElement("span"); name.className="eff-name";
+        name.textContent=row.feature; const sign=document.createElement("small");
+        sign.textContent=` (${w>0?"+":""}${w})`; name.appendChild(sign);
+        const track=document.createElement("div"); track.className="eff-track";
+        const fill=document.createElement("div");
+        fill.className=`eff-fill ${w>=0?"up":"down"}`;
+        fill.style.width=`${50*Math.abs(w)/max}%`;
+        track.appendChild(fill); line.append(name,track); box.appendChild(line);
+      });
     }).catch(()=>{document.getElementById("effects").textContent="Feature weights unavailable.";});
   </script>
 </body>
