@@ -1,0 +1,2 @@
+model A,model B,n,ROC_AUC A,ROC_AUC B,DeLong p,PR_AUC diff (B-A),PR_AUC diff 95% CI lo,PR_AUC diff 95% CI hi,bootstrap p,McNemar: only A right,McNemar: only B right,McNemar p
+Logistic Regression,Random Forest,149623,0.9595451490604934,0.9720402958502177,6.710797775187007e-78,0.08967815536325585,0.07786511938905036,0.09994407621050608,0.002,1031,6604,0.0

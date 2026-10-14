@@ -1,0 +1,5 @@
+site,PR_AUC | Logistic Regression,PR_AUC | Random Forest,ROC_AUC | Logistic Regression,ROC_AUC | Random Forest,recall | Logistic Regression,recall | Random Forest,specificity | Logistic Regression,specificity | Random Forest
+D,0.5256,0.586,0.9545,0.959,0.9184,0.8512,0.8621,0.9346
+E,0.5212,0.6313,0.9651,0.9775,0.8778,0.8354,0.933,0.9691
+F,0.5631,0.5724,0.9637,0.9694,0.8746,0.8301,0.9312,0.9481
+G,0.6382,0.7271,0.9125,0.9331,0.853,0.8714,0.8447,0.8618
