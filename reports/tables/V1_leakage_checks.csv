@@ -1,0 +1,7 @@
+check,passed,detail
+fold file ids == development ids,True,"26,922 ids"
+every record has exactly one role,True,"446,637 unique ids"
+no sample_id shared between roles,True,0 shared ids
+no identical CBC profile across roles,True,0 profiles appear in >1 role
+no identical CBC profile repeated within a role,True,0 repeated profiles
+folds are balanced (max-min prevalence < 0.5 pt),True,33.32-33.34%

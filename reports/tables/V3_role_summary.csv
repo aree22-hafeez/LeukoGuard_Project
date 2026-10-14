@@ -1,0 +1,5 @@
+role,n,leukemia,hospitals,prevalence_pct
+development_cv,26922,8974,"A,B,C",33.333333333333336
+held_out_hospital,149623,5784,"D,E,F,G",3.8657158324589136
+internal_validation,211611,7818,"A,B,C",3.6945149354239617
+real_world_test,58481,2290,RW,3.9158017133769945
