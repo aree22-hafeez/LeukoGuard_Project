@@ -6,3 +6,4 @@ __pycache__/
 data/cleaned/cleaned_external_validation.csv
 data/cleaned/cleaned_internal_validation.csv
 data/features/leukoalert_features.csv.gz
+data/processed/processed_all_cohorts.csv.gz
