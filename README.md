@@ -48,10 +48,10 @@ Every file is one hospital ("site"):
 - `valid_site_D`, `E`, `F`, `G`: hospitals that are never used in training
 - `test_site_true_world`: real world test set
 
-## Data Cleaning (Summary)
- 
+## Phase 1: Data Cleaning and EDA (Summary)
+
 The data had no empty cells, but when we checked it carefully we found many problems:
- 
+
 1. About 105,000 values were not real. Someone had filled the gaps with the average before publishing the data (like `104.2533936651584`). We changed them back to missing (NaN).
 2. Some hospitals wrote 0 when a test was not done. We changed these zeros to NaN.
 3. Sites B and C wrote HCT as 0.35 and the other sites as 35. We multiplied B and C by 100 so all are the same.
@@ -59,14 +59,15 @@ The data had no empty cells, but when we checked it carefully we found many prob
 5. We removed 22 duplicate records and 4 records that had no WBC, HGB and PLT.
 6. We removed 3 "blast" flag columns because they were mostly empty and they almost give the answer directly.
 7. We did not delete outliers, because most of the very high and very low values are leukemia patients.
+
 After cleaning we have **446,637 records and 71 features**. All rules are written in `docs/cleaning_rules.md`.
- 
+
 For the EDA we made histograms, box plots, correlation heatmaps and a leukemia vs healthy comparison of every feature (notebook 01). All graphs are saved in `reports/figures/`.
- 
+
 Then we added 5 ratio features (NLR, PLR, MLR, SII, dNLR) and did scaling: log transform for skewed values, clipping of extreme values, filling missing values with the median (plus missing flags), and standard scaling. These numbers were calculated only from the training files.
- 
-## Key Findings
- 
+
+### Phase 1 Key Findings
+
 1. The training files have 1 leukemia for every 2 healthy (33.3%), but most of the other hospitals have only about 2 to 5% leukemia. So precision will be lower on the test hospitals.
 2. Missing values are important. When the differential is missing, 92% of those records are leukemia.
 3. Leukemia patients have much lower PLT, HGB, RBC, HCT, neutrophils and WBC, and higher LYMPH% and RDW. PLT is the strongest feature (median 38 vs 208).
@@ -75,8 +76,9 @@ Then we added 5 ratio features (NLR, PLR, MLR, SII, dNLR) and did scaling: log t
 6. Many features are almost the same (28 pairs have correlation above 0.95), like WBC and its other channels, or HGB and HCT.
 7. The ratio features are not better than PLT on its own.
 8. The hospitals are a bit different from each other, even for healthy patients.
+
 More details are in `docs/phase1_insights.md`, and a note for every graph is in `reports/figures/README.md`.
- 
+
 ## Project Structure
  
 ```text
