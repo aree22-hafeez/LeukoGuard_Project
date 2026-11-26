@@ -60,7 +60,7 @@ headline = final[final["site"].isin(["A+B+C", "pooled", "RW"])]
 headline.to_csv(TAB_DIR / "FINAL_model_comparison_headline.csv", index=False)
 display(headline.round(3))
 if "XGBoost" not in available:
-    print("\nXGBoost: no results file yet, so its rows are missing (Member 3 to add XGB_results_at_threshold.csv).")
+    print("\nRun python notebooks/09_XGBoost.py to generate the XGBoost results and predictions.")
 
 # %% [markdown]
 # ## 2. Held-out hospitals D-G: per-hospital comparison
@@ -103,8 +103,12 @@ pair_rows = []
 names = available
 for i, a in enumerate(names):
     for b in names[i + 1:]:
-        common = preds[a].index.intersection(preds[b].index)
+        common = preds[a].index
+        if not common.is_unique or not preds[b].index.is_unique or set(common) != set(preds[b].index):
+            raise ValueError(f"{a} and {b} must contain the same unique held-out record IDs.")
         ya = preds[a].loc[common, "y"].to_numpy().astype(int)
+        if not np.array_equal(ya, preds[b].loc[common, "y"].to_numpy().astype(int)):
+            raise ValueError(f"{a} and {b} disagree on held-out labels.")
         pa, pb = preds[a].loc[common, "p"].to_numpy(), preds[b].loc[common, "p"].to_numpy()
         auc_a, auc_b, z, p_roc = delong_test(ya, pa, pb)
         d_pr, lo, hi, p_pr = bootstrap_diff(ya, pa, pb, average_precision_score, n_boot=N_BOOT)
@@ -146,6 +150,6 @@ plt.savefig(FIG_DIR / "FINAL_model_comparison.png", bbox_inches="tight")
 # ## 5. Summary
 
 # %%
-rows = headline[headline["site"].isin(["A+B+C", "pooled D-G", "RW"])]
+rows = headline[headline["site"].isin(["A+B+C", "pooled", "RW"])]
 print("Models in this comparison:", ", ".join(available))
 display(rows[["model", "cohort", "site", "recall", "specificity", "ROC_AUC", "PR_AUC"]].round(3))
