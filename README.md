@@ -79,6 +79,75 @@ Then we added 5 ratio features (NLR, PLR, MLR, SII, dNLR) and did scaling: log t
 
 More details are in `docs/phase1_insights.md`, and a note for every graph is in `reports/figures/README.md`.
 
+## Phase 2: Modelling and Evaluation
+
+### Protocol
+
+- **Development:** hospitals A, B and C (training files). Stratified 5-fold cross-validation on the shared folds in `data/cv_folds_development.csv`. Tuning, class-imbalance choice and the decision threshold use only these folds.
+- **Threshold:** for each model, the cut-off that gives 90% recall on the pooled out-of-fold predictions. It is frozen before any held-out data is used.
+- **Held-out tests:** internal validation (A–C), hospitals D–G (never used before), and the real-world test set.
+- Full protocol: `docs/validation_protocol.md`.
+
+### Models
+
+| Model | Inputs | Notes |
+|---|---|---|
+| Logistic Regression | 71 cleaned CBC features | Class-balanced, regularisation tuned by CV. Coefficients give readable odds ratios. |
+| Random Forest | 71 cleaned CBC features | Depth, leaf size and features per split tuned by CV, one-standard-error rule. |
+| XGBoost | 71 cleaned CBC features + missing indicators | 16-setting sweep, one-standard-error rule. SHAP explanations. |
+| Web model (Logistic Regression) | 24 routine CBC values + 5 ratios | Only the values a user can type into the website. Used by `train_web_model.py`. |
+
+### Final results
+
+Threshold fixed on development data. Hospitals D–G are the main test, because those hospitals were never used for training.
+
+**Held-out hospitals D–G (149,623 records, 3.9% leukemia)**
+
+| Model | ROC-AUC | PR-AUC | Recall | Precision | F1 | Specificity |
+|---|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.960 | 0.529 | 88.3% | 29.7% | 0.445 | 91.6% |
+| Random Forest | **0.972** | **0.619** | 84.4% | **43.7%** | **0.576** | **95.6%** |
+| XGBoost | 0.968 | 0.580 | 82.9% | 43.1% | 0.567 | 95.6% |
+
+**Real-world test set (58,481 records, 3.9% leukemia)**
+
+| Model | ROC-AUC | PR-AUC | Recall | Precision | F1 | Specificity |
+|---|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.967 | 0.478 | 93.5% | 31.5% | 0.471 | 91.7% |
+| Random Forest | 0.974 | 0.555 | 91.4% | 38.6% | 0.543 | 94.1% |
+| XGBoost | 0.975 | 0.559 | 90.0% | 40.4% | 0.557 | 94.6% |
+
+**Development (5-fold CV out-of-fold, 26,922 records, 33.3% leukemia)**
+
+| Model | ROC-AUC | PR-AUC | Recall | Precision |
+|---|---:|---:|---:|---:|
+| Logistic Regression | 0.968 | 0.930 | 90.0% | 86.8% |
+| Random Forest | 0.982 | 0.961 | 90.0% | 91.9% |
+| XGBoost | 0.987 | 0.973 | 90.0% | 94.3% |
+
+Paired tests on hospitals D–G (`reports/tables/FINAL_pairwise_tests_heldout_DG.csv`):
+- Random Forest vs Logistic Regression: PR-AUC +0.090 (95% CI 0.078 to 0.100), DeLong p < 0.001
+- XGBoost vs Logistic Regression: PR-AUC +0.051 (95% CI 0.039 to 0.063), DeLong p < 0.001
+- Random Forest vs XGBoost: PR-AUC +0.039 (95% CI 0.028 to 0.049), DeLong p < 0.001
+
+Full tables: `reports/tables/FINAL_model_comparison_all.csv` (every site) and `reports/tables/FINAL_per_hospital_pivot.csv`.
+
+### Comparison and analysis
+
+- **Best model:** Random Forest ranks highest on the held-out hospitals (ROC-AUC 0.972, PR-AUC 0.619). XGBoost ranks in the middle on those hospitals but is best in development CV. Logistic Regression is the weakest on ranking, but it is the easiest to explain.
+- **Generalisation:** every model is clearly weaker at precision on hospitals D–G than in development CV. The main reason is the much lower leukemia rate in those hospitals (3.9% vs 33.3%), so each flagged patient is more often a false alarm. The gap is largest for the ranking metric PR-AUC. ROC-AUC stays high (about 0.96 to 0.97). See `reports/figures/RQ1_prevalence_matched.png` and `RQ1_roc_pr_gap.png`.
+- **Errors:** the error profiles (`reports/tables/E4_error_profiles.csv`) show that missed leukemia cases had higher platelet counts (169 vs 36 for true positives). False positives had more missing values (15% vs 8% for true positives).
+- **Explanations (RQ2):** SHAP on XGBoost (`docs/member3_results_summary.md`) ranks platelets first in all five fold models. Low platelets raise the leukemia score. Nine measurements appear in every fold's top ten. The Logistic Regression platelet coefficient points the same way (lower platelets, higher risk).
+- **Website model:** the web app uses a Logistic Regression model with only the 24 routine CBC values and 5 ratios, because users can only type routine values. On hospitals D–G it gets ROC-AUC 0.948, PR-AUC 0.510, recall 87.2% and precision 24.2% (`reports/tables/W1_web_model_results.csv`). It is less accurate than the 71-feature models.
+
+### Figures
+
+- Model comparison: `reports/figures/FINAL_model_comparison.png`
+- ROC and PR curves: `reports/figures/XGB_roc_pr.png`, `reports/figures/RF_roc_pr_by_hospital.png`
+- Confusion matrices: `reports/figures/D5_confusion_matrices.png`, `reports/figures/RF_confusion_matrices.png`, `reports/figures/XGB_confusion_matrices.png`
+- Feature importance and SHAP: `reports/figures/RF_feature_importance.png`, `reports/figures/XGB_shap_global.png`, `reports/figures/XGB_shap_beeswarm.png`
+- Logistic Regression odds ratios: `reports/figures/E5_readable_odds_ratios.png`
+
 ## Project Structure
  
 ```text
