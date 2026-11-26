@@ -158,47 +158,41 @@ The website is a FastAPI app in `app/`. A user types CBC values (WBC, HGB and PL
 The app is a screening aid, not a diagnosis.
 
 ## Project Structure
- 
+
 ```text
-LeukoGuard/
-├── app/                
+LeukoGuard_Project/
+├── app/                  Phase 2 website: FastAPI backend (main.py) and static pages
 ├── data/
 │   ├── raw/              original 11 CSV files
 │   ├── cleaned/          cleaned data
 │   ├── features/         data with ratio features
 │   ├── processed/        scaled data
-│   └── splits/
-├── docs/                 cleaning rules and insights
-├── models/               saved models
-├── notebooks/            all notebooks
+│   └── splits/           shared split IDs
+├── docs/                 cleaning rules, insights, validation protocol, results summaries
+├── models/               saved models (LR, RF, XGBoost, website model)
+├── notebooks/            Phase 1 and Phase 2 notebooks (.ipynb and .py)
 ├── reports/
 │   ├── figures/          all graphs
-│   └── tables/
-├── src/                  shared code
-├── tools/
+│   ├── predictions/      out-of-fold and held-out predictions
+│   └── tables/           all result tables
+├── src/                  shared code (features, pipelines)
+├── tools/                notebook runner
 ├── requirements.txt
-├── train_web_model.py
+├── train_web_model.py    trains the website model
 └── README.md
 ```
- 
+
 Phase 1 notebooks:
 - `01_EDA_and_Cleaning.ipynb`: cleaning and EDA
 - `02_Feature_Engineering.ipynb`: ratio features
 - `02b_Preprocessing_and_Scaling.ipynb`: scaling
-Notebooks 03 to 08 cover Logistic Regression, Random Forest, and the shared evaluation. The Member 3 scripts train XGBoost and generate its SHAP explanations.
 
-### Reproduce XGBoost and SHAP
+Phase 2 notebooks and scripts:
+- `03_Logistic_Regression.ipynb`, `04_RQ3_Derived_Features.ipynb`, `05_Validation_Splits.ipynb`
+- `06_Random_Forest.ipynb`, `07_RQ1_Generalization.ipynb`
+- `08_Final_Model_Comparison.ipynb`: the three-model comparison
+- `09_XGBoost.py` and `10_XGBoost_SHAP.py`: XGBoost training and SHAP. These are scripts, not notebooks. Running them reproduces the saved tables.
 
-Run from the repository root after installing `requirements.txt`.
-
-```bash
-python notebooks/09_XGBoost.py
-python notebooks/10_XGBoost_SHAP.py
-python -X utf8 tools/run_notebook.py notebooks/08_Final_Model_Comparison.py notebooks/08_Final_Model_Comparison.ipynb
-```
-
-The XGBoost run uses the checked-in cleaned data and shared split IDs. It writes the model bundle to `models/xgb_final.joblib`, predictions to `reports/predictions/`, and evaluation and SHAP outputs to `reports/tables/` and `reports/figures/`. See the [Member 3 results and RQ2 discussion](docs/member3_results_summary.md).
- 
 ## How to Run
  
 1. Clone the repository:
