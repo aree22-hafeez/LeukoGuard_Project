@@ -148,6 +148,15 @@ Full tables: `reports/tables/FINAL_model_comparison_all.csv` (every site) and `r
 - Feature importance and SHAP: `reports/figures/RF_feature_importance.png`, `reports/figures/XGB_shap_global.png`, `reports/figures/XGB_shap_beeswarm.png`
 - Logistic Regression odds ratios: `reports/figures/E5_readable_odds_ratios.png`
 
+## Website
+
+The website is a FastAPI app in `app/`. A user types CBC values (WBC, HGB and PLT are required; the rest are optional), and the page shows:
+- the risk score and whether it is above the screening threshold (set for 90% recall on development data)
+- the values that raised the score and the values that lowered it
+- warnings when the differential is missing or few values are entered
+
+The app is a screening aid, not a diagnosis.
+
 ## Project Structure
  
 ```text
