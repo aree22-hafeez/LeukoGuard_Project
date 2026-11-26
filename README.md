@@ -13,13 +13,13 @@ In our project we want to check if we can use only the normal CBC values to tell
 So this is a binary classification problem: leukemia (1) or healthy (0).
 
 ## Features
- 
-- CBC-based leukemia risk prediction
-- Logistic Regression and other models
-- Explains which blood values affected the prediction
+
+- CBC-based leukemia risk prediction with three models (Logistic Regression, Random Forest, XGBoost)
+- Explanations: model coefficients (LR) and SHAP values (XGBoost) show which blood values affected a prediction
 - Data cleaning and feature engineering
-- Testing on data from different hospitals
-- Web page where you can enter CBC values and see the result
+- Testing on hospitals that were never used for training, plus a real-world test set
+- Web page where you enter CBC values and see the score and the main reasons for it
+
 ## Technologies Used
  
 - Python, Pandas, NumPy
