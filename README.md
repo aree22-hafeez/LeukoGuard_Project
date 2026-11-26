@@ -29,7 +29,7 @@ So this is a binary classification problem: leukemia (1) or healthy (0).
 - FastAPI, HTML, CSS and JavaScript (web app)
 
 ## Dataset
- 
+
 - **Name:** LeukoAlert-project: Transforming routine blood counts into a leukemia detection system with interpretable AI
 - **Author:** Shilong Liu
 - **Source:** Mendeley Data
@@ -39,13 +39,15 @@ So this is a binary classification problem: leukemia (1) or healthy (0).
 - **Size:** 446,663 records in 11 CSV files (7 hospital sites, A to G, plus one real world test file)
 - **Features:** 74 numeric CBC columns in the raw files, 71 after cleaning (for example WBC, HGB, PLT, NEUT%, LYMPH%, MCV, RDW, platelet indices, and the analyser flags)
 - **Target variable:** `leukemia_label` (leukemia / healthy). We changed it to `y` (1 = leukemia, 0 = healthy)
+
 The raw files are in `data/raw/`. If they are missing, download them from the link above and put the 11 CSV files in `data/raw/`.
- 
+
 Every file is one hospital ("site"):
 - `train_site_A`, `B`, `C`: used for training (26,922 records, 33.3% leukemia)
 - `valid_site_A`, `B`, `C`: validation from the same hospitals
 - `valid_site_D`, `E`, `F`, `G`: hospitals that are never used in training
 - `test_site_true_world`: real world test set
+
 ## Data Cleaning (Summary)
  
 The data had no empty cells, but when we checked it carefully we found many problems:
