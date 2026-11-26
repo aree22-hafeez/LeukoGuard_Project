@@ -100,7 +100,19 @@ Phase 1 notebooks:
 - `01_EDA_and_Cleaning.ipynb`: cleaning and EDA
 - `02_Feature_Engineering.ipynb`: ratio features
 - `02b_Preprocessing_and_Scaling.ipynb`: scaling
-Notebooks 03 to 08 are for the models (Phase 2).
+Notebooks 03 to 08 cover Logistic Regression, Random Forest, and the shared evaluation. The Member 3 scripts train XGBoost and generate its SHAP explanations.
+
+### Reproduce XGBoost and SHAP
+
+Run from the repository root after installing `requirements.txt`.
+
+```bash
+python notebooks/09_XGBoost.py
+python notebooks/10_XGBoost_SHAP.py
+python -X utf8 tools/run_notebook.py notebooks/08_Final_Model_Comparison.py notebooks/08_Final_Model_Comparison.ipynb
+```
+
+The XGBoost run uses the checked-in cleaned data and shared split IDs. It writes the model bundle to `models/xgb_final.joblib`, predictions to `reports/predictions/`, and evaluation and SHAP outputs to `reports/tables/` and `reports/figures/`. See the [Member 3 results and RQ2 discussion](docs/member3_results_summary.md).
  
 ## How to Run
  
