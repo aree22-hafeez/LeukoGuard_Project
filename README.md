@@ -1,7 +1,9 @@
 # LeukoGuard: Explainable Leukemia Risk Prediction
- 
-LeukoGuard is a machine learning project that uses Complete Blood Count (CBC) values to find patients who might have leukemia. We use Logistic Regression and other models, and we also show which blood values affected the prediction, so it is easy to understand.
- 
+
+LeukoGuard is a machine learning project that uses routine Complete Blood Count (CBC) values to flag patients who might have leukemia. We compare Logistic Regression, Random Forest and XGBoost, we test them on hospitals that were never used for training, and we show which blood values pushed each prediction up or down.
+
+**Live website:** not deployed yet. See [Deploying the website](#deploying-the-website) and add the link here once it is live.
+
 ## Problem Statement
  
 Leukemia changes the blood counts. For example the platelets and hemoglobin become low, and the WBC can be very low or very high. Almost every patient in a hospital gets a CBC test, but to confirm leukemia special tests like a bone marrow test are needed.
