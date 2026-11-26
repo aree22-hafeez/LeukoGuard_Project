@@ -194,38 +194,59 @@ Phase 2 notebooks and scripts:
 - `09_XGBoost.py` and `10_XGBoost_SHAP.py`: XGBoost training and SHAP. These are scripts, not notebooks. Running them reproduces the saved tables.
 
 ## How to Run
- 
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/aree22-hafeez/LeukoGuard_Project.git
 cd LeukoGuard_Project
 ```
- 
+
 2. Make a virtual environment (Windows):
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
- 
+
 3. Install the libraries:
 ```bash
 pip install -r requirements.txt
 ```
- 
-4. Run the notebooks in this order: `01_EDA_and_Cleaning.ipynb`, then `02_Feature_Engineering.ipynb`, then `02b_Preprocessing_and_Scaling.ipynb`.
+
+4. Run the Phase 1 notebooks in this order: `01_EDA_and_Cleaning.ipynb`, then `02_Feature_Engineering.ipynb`, then `02b_Preprocessing_and_Scaling.ipynb`.
 ```bash
 jupyter notebook
 ```
-The notebooks are already saved with outputs, so you can also just open them on GitHub.
- 
+The notebooks are saved with outputs, so you can also open them on GitHub.
+
 Some files are too big for GitHub, so they are not uploaded. They are made again when you run the notebooks (for example `data/processed/processed_all_cohorts.csv.gz`).
- 
-5. To run the web app:
+
+5. Reproduce the XGBoost results and SHAP explanations (from the repository root):
+```bash
+python notebooks/09_XGBoost.py
+python notebooks/10_XGBoost_SHAP.py
+python -X utf8 tools/run_notebook.py notebooks/08_Final_Model_Comparison.py notebooks/08_Final_Model_Comparison.ipynb
+```
+The XGBoost run takes about 3.5 minutes. The results are in `docs/member3_results_summary.md`.
+
+6. Retrain the website model (optional, the trained file is in `models/web_model.joblib`):
+```bash
+python train_web_model.py
+```
+
+7. Run the website:
 ```bash
 uvicorn app.main:app --reload
 ```
-Then open the link that shows in the terminal.
- 
+Then open http://127.0.0.1:8000 in your browser. The API docs are at http://127.0.0.1:8000/docs.
+
+### Deploying the website
+
+No deployment is set up yet. To put it online, for example on Render or Railway, use these settings:
+- Install command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+The app needs `models/web_model.joblib`, `src/` and `app/` in the repository. It needs no API keys and no `.env` file.
+
 ## Limitations
  
 - The results depend on the data, and they can be different in other hospitals.
