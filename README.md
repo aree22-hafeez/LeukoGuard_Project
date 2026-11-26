@@ -252,12 +252,15 @@ The app needs `models/web_model.joblib`, `src/` and `app/` in the repository. It
 LeukoGuard shows that routine CBC values carry a strong leukemia signal. On hospitals never seen in training, the best models reach ROC-AUC of about 0.97, and platelet count is the top-ranked value in the XGBoost SHAP analysis in every fold. The results also show the main limit: a screening tool trained on hospitals with about 33% leukemia flags many healthy patients when it is used in hospitals with about 4% leukemia. On held-out hospitals D–G, about 44% of the patients flagged by the Random Forest have leukemia, and about 24% of those flagged by the routine-CBC website model do. The model is useful for ranking and for highlighting cases that need follow-up tests, but it is not a diagnostic tool. Before any clinical use, it would need prospective testing with the same analyser and local leukemia rates.
 
 ## Limitations
- 
+
 - The results depend on the data, and they can be different in other hospitals.
+- Precision is much lower in hospitals with a low leukemia rate, so many flagged patients are false alarms.
+- The website model uses only routine CBC values, so it is less accurate than the full 71-feature models.
 - The model explanations show what the model used, not what causes leukemia.
 - The data has no patient ID, so one person's tests could be in both training and testing folds.
 - The "healthy" group is hospital patients without leukemia, not fully healthy people.
 - This project is only for learning and research, not for real diagnosis.
+
 ## Contributors
  
 - Areej Hafeez
