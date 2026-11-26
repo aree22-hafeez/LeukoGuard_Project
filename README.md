@@ -5,13 +5,13 @@ LeukoGuard is a machine learning project that uses routine Complete Blood Count 
 **Live website:** not deployed yet. See [Deploying the website](#deploying-the-website) and add the link here once it is live.
 
 ## Problem Statement
- 
+
 Leukemia changes the blood counts. For example the platelets and hemoglobin become low, and the WBC can be very low or very high. Almost every patient in a hospital gets a CBC test, but to confirm leukemia special tests like a bone marrow test are needed.
- 
+
 In our project we want to check if we can use only the normal CBC values to tell leukemia patients apart from healthy people. We also want the model to explain its answer and to still work in hospitals that were not used for training.
- 
+
 So this is a binary classification problem: leukemia (1) or healthy (0).
- 
+
 ## Features
  
 - CBC-based leukemia risk prediction
