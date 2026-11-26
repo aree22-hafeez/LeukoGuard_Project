@@ -21,12 +21,13 @@ So this is a binary classification problem: leukemia (1) or healthy (0).
 - Web page where you enter CBC values and see the score and the main reasons for it
 
 ## Technologies Used
- 
-- Python, Pandas, NumPy
-- Scikit-learn
+
+- Python, Pandas, NumPy, SciPy
+- Scikit-learn, XGBoost, SHAP
 - Matplotlib and Seaborn (graphs)
-- Jupyter Notebook
+- Jupyter Notebook and Python scripts
 - FastAPI, HTML, CSS and JavaScript (web app)
+
 ## Dataset
  
 - **Name:** LeukoAlert-project: Transforming routine blood counts into a leukemia detection system with interpretable AI
