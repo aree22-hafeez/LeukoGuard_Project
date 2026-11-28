@@ -2,7 +2,7 @@
 
 LeukoGuard is a machine learning project that uses routine Complete Blood Count (CBC) values to flag patients who might have leukemia. We compare Logistic Regression, Random Forest and XGBoost, we test them on hospitals that were never used for training, and we show which blood values pushed each prediction up or down.
 
-**Live website:** not deployed yet. See [Deploying the website](#deploying-the-website) and add the link here once it is live.
+**Live website:** https://leukoguard-deployment-nd5uoxt4f-haadiyah-zafars-projects.vercel.app/
 
 ## Problem Statement
 
