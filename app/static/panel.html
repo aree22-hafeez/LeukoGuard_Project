@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LeukoGuard: compare three fitted research models on one extended analyzer panel. Not a diagnosis.">
+  <title>LeukoGuard | Compare models</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <nav class="topbar" aria-label="Main">
+        <a class="brand" href="/"><span class="logo" aria-hidden="true">✚</span><span>Leuko<span class="brand-accent">Guard</span><small>CBC screening prototype</small></span></a>
+        <div class="nav">
+          <a href="/">Screening tool</a>
+          <a href="panel.html" aria-current="page">Compare models</a>
+          <a href="about.html">Model &amp; evidence</a>
+        </div>
+      </nav>
+      <div class="hero">
+        <h1>Compare analyzer models</h1>
+        <p>Score one extended CBC panel with Logistic Regression, Random Forest and XGBoost.</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap about-main">
+    <p class="notice"><strong>Research demonstration only.</strong> Use illustrative or de-identified values. These scores cannot diagnose or exclude leukemia.</p>
+    <section class="card" aria-labelledby="panel-title">
+      <h2 id="panel-title">Analyzer measurements</h2>
+      <p>Use cleaned analyzer values in the units shown. Enter hemoglobin and MCHC in g/L and hematocrit in percent. Leave unavailable measurements blank. For a routine blood report, use the <a href="/">screening tool</a>.</p>
+      <button type="button" id="example" class="btn-ghost" disabled>Load illustrative panel</button>
+      <p class="hint">The example uses the median of each measurement in the development data.</p>
+      <form id="cbc-form">
+        <div id="groups"></div>
+        <div class="form-actions"><button class="primary" id="compare" disabled>Compare scores</button></div>
+      </form>
+      <p class="error" id="error" role="alert" hidden></p>
+    </section>
+    <section id="results" class="card" aria-labelledby="results-title" hidden>
+      <h2 id="results-title" tabindex="-1">Model results</h2>
+      <p id="coverage"></p>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Model</th><th scope="col">Score</th><th scope="col">Flag threshold</th><th scope="col">Result</th></tr></thead>
+        <tbody id="scores"></tbody>
+      </table></div>
+      <p class="table-note">Each model uses its own threshold selected on development folds. The flag uses the full-precision score. A score is not a disease probability.</p>
+    </section>
+  </main>
+  <script src="/panel.js"></script>
+</body>
+</html>
