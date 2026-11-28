@@ -7,7 +7,7 @@ then open http://127.0.0.1:8000
 """
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Annotated, Optional
 
 import joblib
 import numpy as np
@@ -21,6 +21,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from leuko_common import CORE_FEATURES, add_derived_features   # noqa: E402
 import lr_pipeline                                              # noqa: E402,F401  (needed to unpickle)
 
+from app.panel_models import InvalidPanel, compare_panel, load_panel_models, panel_schema
+
+PANEL_MODELS = load_panel_models(ROOT)
 BUNDLE = joblib.load(ROOT / "models" / "web_model.joblib")
 MODEL = BUNDLE["model"]
 THRESHOLD = BUNDLE["threshold"]
@@ -136,7 +139,8 @@ app = FastAPI(title="LeukoGuard", description="Explainable CBC screening aid (no
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "threshold": THRESHOLD, "trained_on": BUNDLE["trained_on"]}
+    return {"status": "ok", "threshold": THRESHOLD, "trained_on": BUNDLE["trained_on"],
+            "models": ["Routine CBC Logistic Regression", *PANEL_MODELS]}
 
 
 @app.get("/api/model-info")
@@ -179,6 +183,24 @@ def global_effects(top: int = 12):
     coef = pd.Series(MODEL.lr_.coef_.ravel(), index=MODEL.feature_names_out_)
     top_idx = coef.abs().sort_values(ascending=False).head(top).index
     return [{"feature": LABELS.get(n, n), "weight": round(float(coef[n]), 3)} for n in top_idx]
+
+
+@app.get("/api/analyzer-panel")
+def analyzer_panel():
+    return {"groups": panel_schema(), "models": list(PANEL_MODELS)}
+
+
+# Accept measured numbers or explicit missing values in cleaned dataset units.
+PanelValue = Annotated[float, Field(strict=True, ge=0, le=np.finfo(np.float32).max.item(),
+                                    allow_inf_nan=False)]
+
+
+@app.post("/api/analyzer-panel/predict")
+def predict_panel(values: dict[str, PanelValue | None]):
+    try:
+        return compare_panel(values, PANEL_MODELS)
+    except InvalidPanel as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 
 # static website (must be mounted last so /api/... routes win)
