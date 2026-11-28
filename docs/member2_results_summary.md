@@ -35,14 +35,14 @@ Full table: `reports/tables/RQ1_generalization_gap.csv` (bootstrap 95% CIs).
 
 **Answer to RQ1 (RF part):** routine CBC features discriminate well at an unseen hospital (ROC-AUC 0.97). Recall at the frozen threshold drops from 0.90 to 0.84, so a local threshold check is advisable before use at any new site.
 
-## D. Final comparison (LR, RF; XGBoost pending)
+## D. Final comparison (LR, RF and XGBoost)
 Table: `reports/tables/FINAL_model_comparison_headline.csv`. Per-hospital: `FINAL_per_hospital_pivot.csv`. Figure: `reports/figures/FINAL_model_comparison.png`.
 
 | Model | Held-out D-G recall | Specificity | ROC-AUC | PR-AUC |
 |---|---|---|---|---|
 | Logistic Regression | 0.883 | 0.916 | 0.960 | 0.529 |
 | Random Forest | 0.844 | 0.956 | 0.972 | 0.619 |
-| XGBoost | pending (Member 3) | | | |
+| XGBoost | 0.829 | 0.956 | 0.968 | 0.580 |
 
 Paired tests on D-G (`FINAL_pairwise_tests_heldout_DG.csv`):
 - ROC-AUC: RF higher than LR, DeLong p < 0.001.
@@ -52,6 +52,6 @@ Paired tests on D-G (`FINAL_pairwise_tests_heldout_DG.csv`):
 ## Limitations
 - No patient identifiers: CV may be slightly optimistic (repeat CBCs can cross folds).
 - Development prevalence is 33% and held-out prevalence is about 4%; PR-AUC is only directly comparable after prevalence matching.
-- XGBoost rows and its comparison are missing until Member 3's results files are added.
+- XGBoost results are included in the final comparison. Its RQ2 and SHAP analysis are documented in `docs/member3_results_summary.md`.
 - The RF was run with the installed scikit-learn 1.8.0, while `requirements.txt` pins 1.9.1. Re-run to reproduce exactly.
 - Screening aid only, not a diagnostic tool.
