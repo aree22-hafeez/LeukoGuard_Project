@@ -18,7 +18,7 @@ So this is a binary classification problem: leukemia (1) or healthy (0).
 - Explanations: model coefficients (LR) and SHAP values (XGBoost) show which blood values affected a prediction
 - Data cleaning and feature engineering
 - Testing on hospitals that were never used for training, plus a real-world test set
-- Web page where you enter CBC values and see the score and the main reasons for it
+- Deployed web application for routine CBC screening and side-by-side comparison of Logistic Regression, Random Forest and XGBoost
 
 ## Technologies Used
 
@@ -150,18 +150,27 @@ Full tables: `reports/tables/FINAL_model_comparison_all.csv` (every site) and `r
 
 ## Website
 
-The website is a FastAPI app in `app/`. A user types CBC values (WBC, HGB and PLT are required; the rest are optional), and the page shows:
-- the risk score and whether it is above the screening threshold (set for 90% recall on development data)
-- the values that raised the score and the values that lowered it
-- warnings when the differential is missing or few values are entered
+The website is a FastAPI application in `app/` and provides two workflows:
 
-The app is a screening aid, not a diagnosis.
+1. **Routine CBC screening:** users enter up to 19 routine CBC measurements. WBC, HGB and PLT are required. The page displays the Routine CBC Logistic Regression score, its recall-based threshold, the measurements that raised or lowered the score, and warnings about missing inputs.
+2. **Compare models:** users enter an extended 71-feature analyser panel and receive side-by-side scores from the full Logistic Regression, Random Forest and XGBoost models. Each model uses its own threshold selected from development out-of-fold predictions.
+
+To test the website, select **Load typical example** on the screening page or **Load illustrative panel** on the comparison page, then submit the values. Missing optional analyser measurements are passed through the preprocessing and imputation fitted with each model.
+
+The FastAPI backend also provides:
+
+- `/api/health`: service status and loaded model names
+- `/api/model-info`: routine screening-model information
+- `/api/analyzer-panel`: comparison-panel schema
+- `/docs`: interactive API documentation
+
+The application is a research screening demonstration, not a diagnostic system. Do not enter identifiable patient information.
 
 ## Project Structure
 
 ```text
 LeukoGuard_Project/
-├── app/                  Phase 2 website: FastAPI backend (main.py) and static pages
+├── app/                  Phase 2 website: FastAPI backend, screening form and model comparison
 ├── data/
 │   ├── raw/              original 11 CSV files
 │   ├── cleaned/          cleaned data
@@ -191,7 +200,10 @@ Phase 2 notebooks and scripts:
 - `03_Logistic_Regression.ipynb`, `04_RQ3_Derived_Features.ipynb`, `05_Validation_Splits.ipynb`
 - `06_Random_Forest.ipynb`, `07_RQ1_Generalization.ipynb`
 - `08_Final_Model_Comparison.ipynb`: the three-model comparison
-- `09_XGBoost.py` and `10_XGBoost_SHAP.py`: XGBoost training and SHAP. These are scripts, not notebooks. Running them reproduces the saved tables.
+- `09_XGBoost.ipynb` and `09_XGBoost.py`: XGBoost training, tuning and held-out evaluation
+- `10_XGBoost_SHAP.ipynb` and `10_XGBoost_SHAP.py`: global SHAP, patient-level explanations, feature direction and five-fold stability analysis
+
+The notebooks are saved with their outputs. The matching Python scripts can be used to reproduce the committed XGBoost and SHAP results.
 
 ## How to Run
 
@@ -239,13 +251,28 @@ uvicorn app.main:app --reload
 ```
 Then open http://127.0.0.1:8000 in your browser. The API docs are at http://127.0.0.1:8000/docs.
 
-### Deploying the website
+### Deployed website
 
-No deployment is set up yet. To put it online, for example on Render or Railway, use these settings:
-- Install command: `pip install -r requirements.txt`
-- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+The production website is deployed on Vercel:
 
-The app needs `models/web_model.joblib`, `src/` and `app/` in the repository. It needs no API keys and no `.env` file.
+**https://leukoguard-deployment-nd5uoxt4f-haadiyah-zafars-projects.vercel.app/**
+
+After deployment, verify both example workflows and open `/api/health`. A healthy deployment returns `"status": "ok"` and lists the Routine CBC Logistic Regression, full Logistic Regression, Random Forest and XGBoost models.
+
+For another Python web host, run the commands from the repository root:
+
+- Install command: `pip install -r app/requirements.txt`
+- Start command: `python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Health-check path: `/api/health`
+
+The complete service requires `app/`, `src/`, the four model files in `models/`, and `reports/predictions/rf_oof_development.csv`. The RF prediction file is used to reconstruct the threshold selected during training. The application requires no API keys or `.env` file.
+
+To verify the local or deployed prediction APIs, run:
+
+```bash
+python tools/check_web_models.py
+python tools/check_web_models.py https://leukoguard-deployment-nd5uoxt4f-haadiyah-zafars-projects.vercel.app
+```
 
 ## Conclusion
 
@@ -270,3 +297,4 @@ LeukoGuard shows that routine CBC values carry a strong leukemia signal. On hosp
 ## Disclaimer
 
 LeukoGuard is a student project and is not tested for real medical use. If you have any health concerns, talk to a doctor.
+
